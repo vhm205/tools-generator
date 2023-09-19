@@ -1,0 +1,232 @@
+<style>
+    .btn-remove-field-meta.active i{
+        transform: rotate(45deg);
+        transition: 500ms;
+    }
+    .wrapper__checkmark {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #eee
+    }
+
+    .checkmark__circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: #7ac142;
+        fill: none;
+        animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards
+    }
+
+    .checkmark {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        /* display: block; */
+        /* margin: 10% auto; */
+        stroke-width: 2;
+        stroke: #fff;
+        stroke-miterlimit: 10;
+        margin-right: 10px;
+        box-shadow: inset 0px 0px 0px #7ac142;
+    }
+
+    .checkmark.active{
+        animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both
+    }
+
+    .checkmark.active .checkmark__check{
+        stroke: #fff;
+    }
+
+    .checkmark__check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        stroke: #000;
+        animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards
+    }
+
+    @keyframes stroke {
+        100% {
+            stroke-dashoffset: 0
+        }
+    }
+
+    @keyframes scale {
+        0%,
+        100% {
+            transform: none
+        }
+
+        50% {
+            transform: scale3d(1.1, 1.1, 1)
+        }
+    }
+
+    @keyframes fill {
+        100% {
+            box-shadow: inset 0px 0px 0px 30px #7ac142
+        }
+    }
+</style>
+
+<!-- Page Content-->
+<div class="page-content">
+    <div class="container-fluid">
+        <!-- Page-Title -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <div class="row">
+                        <div class="col">
+                            <h4 class="page-title">Trigger Event Notification</h4>
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="javascript:void(0);">Admin</a></li>
+                                <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Trigger Event</li>
+                            </ol>
+                        </div><!--end col-->
+                        <div class="col-auto align-self-center">
+                            <a href="#" class="btn btn-sm btn-outline-primary">
+                                <i data-feather="download" class="align-self-center icon-xs"></i>
+                            </a>
+                        </div><!--end col-->  
+                    </div><!--end row-->                                                              
+                </div><!--end page-title-box-->
+            </div><!--end col-->
+        </div><!--end row-->
+        <!-- end page title end breadcrumb -->
+        <div class="row">
+
+            <!-- B1: TẠO FUNCTIONS -->
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+                        
+                        <!-- <p class="text-muted mb-0">An interface to add and remove a repeatable group of input elements.</p>-->
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h4>B1: Tạo Function</h4>
+                            </div>
+                            <div class="col-sm-6 d-flex justify-content-end">
+                                <button class="btn btn-outline-primary btn-create-functions">
+                                    <span class="fas fa-rocket me-1"></span> Tạo function
+                                </button>
+                            </div>
+                        </div>
+						<div class="row mt-3">
+						</div>
+                    </div><!--end card-header-->
+                    <div class="card-body">
+                        
+                        <fieldset>
+                            <div class="repeater-default">
+                                <div data-repeater-list="function" id="repeaterListFunctions">
+
+                                </div>
+                                <div class="form-group mb-0 row">
+                                    <div class="col-12">
+                                        <span class="btn btn-outline-secondary btn-add-function">
+                                            <span class="fas fa-plus"></span> Thêm function
+                                        </span>
+                                    </div><!--end col-->
+                                </div><!--end row-->     
+                            </div>
+                        </fieldset>
+
+                    </div><!--end card-body-->
+                </div><!--end card-->
+            </div> <!-- end col -->
+
+            <!-- B2: TẠO TEMPLATE NOTI -->
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+
+                        <!-- <p class="text-muted mb-0">An interface to add and remove a repeatable group of input elements.</p>-->
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h4>B2: Tạo Template Notification</h4>
+                            </div>
+                            <div class="col-sm-6 d-flex justify-content-end">
+                                <button class="btn btn-outline-success btn-check-func me-2" data-type="template">
+                                    <span class="far fa-check-circle" style="font-size: 15px;"></span>
+                                    Verify
+                                </button>
+                                <button class="btn btn-outline-primary btn-create-template-noti">
+                                    <span class="fas fa-rocket me-1"></span> Tạo template
+                                </button>
+                            </div>
+                        </div>
+						<div class="row mt-3">
+						</div>
+                    </div><!--end card-header-->
+                    <div class="card-body">
+                        
+                        <fieldset>
+                            <div class="repeater-default">
+                                <div data-repeater-list="template-notification" id="repeaterListTemplatesNoti">
+
+                                </div>
+                                <div class="form-group mb-0 row">
+                                    <div class="col-12">
+                                        <span class="btn btn-outline-secondary btn-add-template">
+                                            <span class="fas fa-plus"></span> Thêm template
+                                        </span>
+                                    </div><!--end col-->
+                                </div><!--end row-->     
+                            </div>
+                        </fieldset>
+
+                    </div><!--end card-body-->
+                </div><!--end card 1-->
+
+                <!-- B3: TẠO TRIGGER - EVENT FUNCTIONS -->
+                <div class="card">
+                    <div class="card-header">
+
+                        <!-- <p class="text-muted mb-0">An interface to add and remove a repeatable group of input elements.</p>-->
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h4>B3: Tạo Event</h4>
+                            </div>
+                            <div class="col-sm-8 d-flex justify-content-end">
+                                <button class="btn btn-outline-primary btn-create-event">
+                                    <span class="fas fa-rocket me-1"></span> Tạo event
+                                </button>
+                            </div>
+                        </div>
+                    </div><!--end card-header-->
+
+                    <div class="card-body">
+                        <fieldset>
+                            <div class="repeater-default">
+                                <div data-repeater-list="template-trigger-event" id="repeaterListTriggerEvent">
+    
+                                </div>
+                                <div class="form-group mb-0 row">
+                                    <div class="col-12">
+                                        <span class="btn btn-outline-secondary btn-add-event">
+                                            <span class="fas fa-plus"></span> Thêm event
+                                        </span>
+                                    </div><!--end col-->
+                                </div><!--end row-->     
+                            </div>
+                        </fieldset>
+                    </div>
+
+                </div><!--end card 2-->
+
+            </div> <!-- end col -->
+
+        </div> <!-- end row -->
+
+    </div><!-- container -->
+
+
+<%- include ./components/modals.ejs %>
+<%- include ./components/templates.ejs %>

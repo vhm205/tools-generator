@@ -1,0 +1,1024 @@
+<style>
+    .btn-remove-field-enum.active i,
+    .btn-remove-condition-field.active i{
+        transform: rotate(45deg);
+        transition: 500ms;
+    }
+    .select-method,
+    .select-method:focus{
+        color: white;
+        font-weight: bolder;
+    }
+    .line-condition{
+        float: right;
+    }
+    .type-condition {
+        cursor: pointer;
+    }
+</style>
+
+<!-- Page Content-->
+<div class="page-content">
+    <div class="container-fluid">
+        <!-- Page-Title -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <div class="row">
+                        <div class="col">
+                            <h4 class="page-title">Generator Tools</h4>
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="javascript:void(0);">Admin</a></li>
+                                <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Generator Package</li>
+                            </ol>
+                        </div><!--end col-->
+                        <div class="col-auto align-self-center">
+                            <a href="#" class="btn btn-sm btn-outline-primary">
+                                <i data-feather="download" class="align-self-center icon-xs"></i>
+                            </a>
+                        </div><!--end col-->  
+                    </div><!--end row-->                                                              
+                </div><!--end page-title-box-->
+            </div><!--end col-->
+        </div><!--end row-->
+        <!-- end page title end breadcrumb -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Tạo Schema</h4>
+                        <!-- <p class="text-muted mb-0">An interface to add and remove a repeatable group of input elements.</p>-->
+                        <div class="row mt-3">
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control input-collection-name" placeholder="Tên collection" value="<%= infoCollection ? infoCollection.name : '' %>">
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control input-collection-description" placeholder="Mô tả collection" value="<%= infoCollection ? infoCollection.description : '' %>">
+                            </div>
+							<div class="col-sm-2">
+                                <input type="text" class="form-control input-folder" placeholder="Tên Folder" value="<%= infoCollection ? infoCollection.folderName : '' %>">
+                            </div>
+                            <div class="col-sm-3 d-flex justify-content-start">
+                                <button class="btn btn-primary btn-create-package me-2">
+                                    Tạo package
+                                </button>
+                                <button class="btn btn-outline-primary btn-show-modal-create-api">
+                                    <span class="fas fa-rocket me-1"></span> Custom API
+                                </button>
+                            </div>
+                        </div>
+						<div class="row mt-3">
+							<div class="col-sm-3">
+                                <select class="select2 form-control mb-3 custom-select sc-select-collection" style="width: 100%; height:36px;">
+                                    <option value="0">Chọn collection</option>
+                                    <% if (listCollections && listCollections.length) { %>
+                                        <% listCollections.forEach(coll => { %>
+                                            <option value="<%= coll._id %>"> <%= coll.name %> </option>
+                                        <% }) %>
+                                    <% } %>
+                                </select>
+                            </div>
+							<div class="col-sm-4 d-flex">
+								<button type="button" class="btn btn-outline-danger me-2 btn-delete-package d-none">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary me-2 btn-choose-icon" data-bs-toggle="modal" data-bs-target="#modalChooseIcon">
+                                    <% if (infoCollection.icon) { %>
+                                        <i class="<%= infoCollection.icon %>"></i>
+                                    <% } else{ %>
+                                        <i class="fas fa-user-secret"></i>
+                                    <% } %>
+                                </button>
+								<div class="form-check form-switch mt-2">
+									<input class="form-check-input" type="checkbox" id="cbIsServerSide" checked>
+									<label class="form-check-label" for="cbIsServerSide">Server Side</label>
+								</div>
+                                <div class="form-check form-switch mt-2" style="
+                                    margin-left: 0.5rem !important;
+                                ">
+									<input class="form-check-input" type="checkbox" id="cbIsApiAddress" <%= infoCollection.isApiAddress && 'checked' %> >
+									<label class="form-check-label" for="cbIsApiAddress" >Api Address</label>
+								</div>
+                                <div class="form-check form-switch mt-2" style="
+                                    margin-left: 0.5rem !important;
+                                ">
+									<input class="form-check-input" type="checkbox" id="cbIsSystemConfig" <%= infoCollection.isSystemConfig && 'checked' %> >
+									<label class="form-check-label" for="cbIsSystemConfig" >System Config</label>
+								</div>
+							</div>
+						</div>
+                    </div><!--end card-header-->
+                    <div class="card-body">
+                        <form method="POST" action="#" class="form-horizontal well">
+                            <fieldset>
+                                <div class="repeater-default">
+                                    <div data-repeater-list="collection" id="repeaterList">
+
+
+                                    <% if (listFields && listFields.length) { %>
+                                        <% listFields.forEach(field => { %>
+                                            <% if (!field.isApiAddress) { %>
+                                                <div data-repeater-item="" class="template-field" __tid="<%= field._id %>">
+                                                    <div class="form-group row d-flex justify-content-between">
+    
+                                                        <div class="col-sm-2 col-first-template">
+                                                            <label class="form-label">Tên Field</label>
+                                                            <input type="text" class="form-control input-field-name" value="<%= field.name %>" />
+    
+                                                            <div class="popper-note d-none position-absolute" role="tooltip" tabindex="-1" x-placement="top" style="left: 0;">
+                                                                <div class="tippy-tooltip light-theme rounded-theme">
+                                                                    <div class="tippy-arrow" style="transform: scale(2); left: 89px;">
+                                                                    </div>
+                                                                    <div class="tippy-content">
+                                                                        <div class="template" data-template="">
+                                                                            <div class="d-flex">
+                                                                                <input type="text" class="form-control input-field-note" placeholder="Ghi chú field" value="<%= field.note %>">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+    
+                                                        <%
+                                                            let isText = field.type === 'text';
+                                                            let isNumber = field.type === 'number';
+                                                            let isBoolean = field.type === 'boolean';
+                                                            let isDate = field.type === 'date';
+                                                            let isObject = field.type === 'object';
+                                                            let isArray = field.type === 'array';
+    
+                                                            let {
+                                                                isPrimary,
+                                                                isUnique,
+                                                                isRequire,
+                                                                isTrim,
+                                                                isInsert,
+                                                                isUpdate,
+                                                                isSlug,
+                                                                isCurrency,
+                                                                isDefault,
+                                                                defaultValue,
+                                                                messageError,
+                                                                isCompare,
+                                                                isSeparateCondition,
+                                                                dataCompareField,
+                                                                isEnum,
+                                                                dataEnum,
+                                                                formatDate,
+                                                                isShowList,
+                                                                isStatus,
+                                                                isOrder,
+                                                                isExport,
+                                                                isImport,
+                                                                isPassword,
+                                                                widthDatatable,
+                                                                isTinyMCE,
+                                                                isTextarea,
+                                                                isBold,
+                                                                isItalic,
+                                                                isImage,
+                                                                isLink,
+                                                                isBigData,
+                                                                isInsertUpdateFrom,
+                                                                dataInsertUpdateFrom,
+                                                                typeImage,
+                                                                typeUpload,
+                                                                dateType,
+                                                                fileType,
+                                                                ref,
+                                                                refShow,
+                                                                followBy,
+                                                                tableSub,
+                                                                placeholder
+                                                            } = field;
+                                                        %>
+    
+                                                        <div class="col-sm-2">
+                                                            <label class="form-label">Kiểu dữ liệu</label>
+                                                            <select class="form-select input-field-type">
+                                                                <option value="text"    <%= isText      && 'selected' %>>String</option>
+                                                                <option value="number"  <%= isNumber    && 'selected' %>>Number</option>
+                                                                <option value="boolean" <%= isBoolean   && 'selected' %>>Boolean</option>
+                                                                <option value="date"    <%= isDate      && 'selected' %>>Date</option>
+                                                                <option value="object"  <%= isObject    && 'selected' %>>Object</option>
+                                                                <option value="array"   <%= isArray     && 'selected' %>>Array</option>
+                                                            </select>
+                                                        </div>
+    
+                                                        <!-- BEGIN FIELD TYPE STRING -->
+                                                
+                                                        <div class="col-sm-1 col-field-type col-field-type-string <%= !isText && 'd-none' %>" style="margin-top: 35px;">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-enum" type="checkbox" <%= isEnum && 'checked' %>>
+                                                                    Enum
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                
+                                                        <div class="col-sm-4 col-field-type col-field-type-string <%= !isText && 'd-none' %>">
+                                                            <div class="row">
+                                                                <div class="col-sm-6">
+                                                                    <label class="form-label">Mặc định</label>
+                                                                    <select class="form-select input-field-is-default">
+                                                                        <option value="0" <%= !isDefault && 'selected' %>>Non-default</option>
+                                                                        <option value="1" <%= isDefault && 'selected' %>>Default</option>
+                                                                    </select>
+                                                                </div>
+                                                
+                                                                <div class="col-sm-6">
+                                                                    <label class="form-label d-block">Giá trị mặc định</label>
+                                                                    <input type="text" class="form-control input-field-value-default" value="<%= defaultValue || '' %>" placeholder="Default">
+    
+                                                                    <input type="text" class="form-control mt-2 input-field-placeholder" placeholder="Placeholder" value="<%= placeholder %>">
+                                                                </div>
+                                                            </div>
+    
+                                                            <div class="row mt-3 wrapper-field-enum <%= !isEnum && 'd-none' %>">
+    
+                                                                <% if (dataEnum && dataEnum.length) { %>
+                                                                    <% dataEnum.forEach((item, index) => { %>
+                                                                        <% let isLastFieldEnum = index === dataEnum.length - 1; %>
+                                                                        <div class="col-sm-12 row-field-enum">
+                                                                            <div class="input-group mb-3">
+                                                                                <button class="btn btn-secondary <%= isLastFieldEnum ? 'btn-add-field-enum' : 'btn-danger btn-remove-field-enum active' %>" type="button">
+                                                                                    <i class="fas fa-plus"></i>
+                                                                                </button>
+                                                                                <input type="text" class="form-control input-field-title-enum" placeholder="Tiêu đề" value="<%= item.title %>">
+                                                                                <input type="text" class="form-control input-field-value-enum" placeholder="Giá trị" value="<%= item.value %>">
+                                                                                <input type="color" class="form-control form-control-color input-field-color-enum" value="<%= item.color %>" title="Choose your color">
+                                                                            </div>
+                                                                        </div>
+                                                                    <% }) %>
+                                                                <% } else{ %>
+                                                                    <div class="col-sm-12 row-field-enum">
+                                                                        <div class="input-group mb-3">
+                                                                            <button class="btn btn-secondary btn-add-field-enum" type="button">
+                                                                                <i class="fas fa-plus"></i>
+                                                                            </button>
+                                                                            <input type="text" class="form-control input-field-title-enum" placeholder="Tiêu đề">
+                                                                            <input type="text" class="form-control input-field-value-enum" placeholder="Giá trị">
+                                                                            <input type="color" class="form-control form-control-color input-field-color-enum" value="#d63031" title="Choose your color">
+                                                                        </div>
+                                                                    </div>
+                                                                <% } %>
+    
+                                                            </div>
+                                                        </div>
+                                                
+                                                        <div class="col-sm-1 col-field-type col-field-type-string <%= !isText && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-primary-key" type="checkbox" <%= isPrimary && 'checked' %>>
+                                                                    Primary key
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-unique" type="checkbox" <%= isUnique && 'checked' %>>
+                                                                    Unique
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-require" type="checkbox" <%= isRequire && 'checked' %>>
+                                                                    Require
+                                                                </label>
+                                                            </div>
+                                                            
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-trim" type="checkbox" <%= isTrim && 'checked' %>>
+                                                                    Trim
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-tiny" type="checkbox" <%= isTinyMCE && 'checked' %>>
+                                                                    TinyMCE
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-textarea" type="checkbox" <%= isTextarea && 'checked' %>>
+                                                                    Textarea
+                                                                </label>
+                                                            </div>
+                                                            <!-- <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-password" type="checkbox" <%= isPassword && 'checked' %>>
+                                                                    Password
+                                                                </label>
+                                                            </div> -->
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-show-list" type="checkbox" <%= isShowList && 'checked' %>>
+                                                                    Show List
+                                                                </label>
+                                                                <input type="text" class="form-control input-field-width" value="<%= widthDatatable && widthDatatable || '' %>" 
+                                                                    <% if (!isShowList) { %>
+                                                                        style="display: none;" 
+                                                                    <% } %>
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                
+                                                        <div class="col-sm-1 col-field-type col-field-type-string <%= !isText && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-bold" type="checkbox" <%= isBold && 'checked' %>>
+                                                                    Bold
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-italic" type="checkbox" <%= isItalic && 'checked' %>>
+                                                                    Italic
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-slug" type="checkbox" <%= isSlug && 'checked' %>>
+                                                                    Slug
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-export" type="checkbox" <%= isExport && 'checked' %>>
+                                                                    Export
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-import" type="checkbox" <%= isImport && 'checked' %>>
+                                                                    Import
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-insert" type="checkbox" <%= isInsert && 'checked' %>>
+                                                                    Insert
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-update" type="checkbox" <%= isUpdate && 'checked' %>>
+                                                                    Update
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                
+                                                        <!-- END FIELD TYPE STRING -->
+                                                
+                                                
+                                                        <!-- BEGIN FIELD TYPE NUMBER -->
+                                                
+                                                        <div class="col-sm-1 col-field-type col-field-type-number <%= !isNumber && 'd-none' %>" style="margin-top: 35px;">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-enum" type="checkbox" <%= isEnum && 'checked' %>>
+                                                                    Enum
+                                                                </label>
+                                                              </div>
+                                                        </div>
+    
+                                                        <div class="col-sm-4 col-field-type col-field-type-number <%= !isNumber && 'd-none' %>">
+                                                            <div class="row">
+                                                                <div class="col-sm-6">
+                                                                    <label class="form-label">Mặc định</label>
+                                                                    <select class="form-select input-field-is-default">
+                                                                        <option value="0" <%= !isDefault && 'selected' %>>Non-default</option>
+                                                                        <option value="1" <%= isDefault && 'selected' %>>Default</option>
+                                                                    </select>
+                                                                </div>
+    
+                                                                <div class="col-sm-6">
+                                                                    <label class="form-label d-block">Giá trị mặc định</label>
+                                                                    <input type="text" class="form-control input-field-value-default" value="<%= defaultValue || '' %>" placeholder="default">
+    
+                                                                    <input type="text" class="form-control mt-2 input-field-placeholder" placeholder="Placeholder" value="<%= placeholder %>">
+                                                                </div>
+                                                            </div>
+                                                
+                                                            <div class="row mt-3 wrapper-field-enum <%= !dataEnum.length && 'd-none' %>">
+    
+                                                                <% if (dataEnum && dataEnum.length) { %>
+                                                                    <% dataEnum.forEach((item, index) => { %>
+                                                                        <% let isLastFieldEnum = index === dataEnum.length - 1; %>
+                                                                        <div class="col-sm-12 row-field-enum">
+                                                                            <div class="input-group mb-3">
+                                                                                <button class="btn btn-secondary <%= isLastFieldEnum ? 'btn-add-field-enum' : 'btn-danger btn-remove-field-enum active' %>" type="button">
+                                                                                    <i class="fas fa-plus"></i>
+                                                                                </button>
+                                                                                <input type="text" class="form-control input-field-title-enum" placeholder="Tiêu đề" value="<%= item.title %>">
+                                                                                <input type="text" class="form-control input-field-value-enum" placeholder="Giá trị" value="<%= item.value %>">
+                                                                                <input type="color" class="form-control form-control-color input-field-color-enum" value="<%= item.color %>" title="Choose your color">
+                                                                            </div>
+                                                                        </div>
+                                                                    <% }) %>
+                                                                <% } else{ %>
+                                                                    <div class="col-sm-12 row-field-enum">
+                                                                        <div class="input-group mb-3">
+                                                                            <button class="btn btn-secondary btn-danger btn-remove-field-enum active" type="button">
+                                                                                <i class="fas fa-plus"></i>
+                                                                            </button>
+                                                                            <input type="text" class="form-control input-field-title-enum" placeholder="Tiêu đề" value="Hoạt động">
+                                                                            <input type="text" class="form-control input-field-value-enum" placeholder="Giá trị" value="1">
+                                                                            <input type="color" class="form-control form-control-color input-field-color-enum" value="#0b51b7" title="Choose your color">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-sm-12 row-field-enum">
+                                                                        <div class="input-group mb-3">
+                                                                            <button class="btn btn-secondary btn-add-field-enum" type="button">
+                                                                                <i class="fas fa-plus"></i>
+                                                                            </button>
+                                                                            <input type="text" class="form-control input-field-title-enum" placeholder="Tiêu đề" value="Không hoạt động">
+                                                                            <input type="text" class="form-control input-field-value-enum" placeholder="Giá trị" value="2">
+                                                                            <input type="color" class="form-control form-control-color input-field-color-enum" value="#d63031" title="Choose your color">
+                                                                        </div>
+                                                                    </div>
+                                                                <% } %>
+    
+                                                            </div>
+                                                        </div>
+                                                
+                                                        <div class="col-sm-1 col-field-type col-field-type-number <%= !isNumber && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-primary-key" type="checkbox" <%= isPrimary && 'checked' %>>
+                                                                    Primary key
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-require" type="checkbox" <%= isRequire && 'checked' %>>
+                                                                    Require
+                                                                </label>
+                                                            </div>
+                                                           
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-currency" type="checkbox" <%= isCurrency && 'checked' %>>
+                                                                    Currency
+                                                                </label>
+                                                            </div>
+                                                            
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-show-status-in-list" type="checkbox" <%= isStatus && 'checked' %>>
+                                                                        Status
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-show-order-in-list" type="checkbox" <%= isOrder && 'checked' %>>
+                                                                        Order
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                
+                                                        <div class="col-sm-1 col-field-type col-field-type-number <%= !isNumber && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-compare" type="checkbox" <%= isCompare && 'checked' %>>
+                                                                    Compare
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-show-list" type="checkbox" <%= isShowList && 'checked' %>>
+                                                                    Show List
+                                                                </label>
+                                                                <input type="text" class="form-control input-field-width" value="<%= widthDatatable && widthDatatable || '' %>" 
+                                                                    <% if (!isShowList) { %>
+                                                                        style="display: none;" 
+                                                                    <% } %>
+                                                                />
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-export" type="checkbox" <%= isExport && 'checked' %>>
+                                                                    Export
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-import" type="checkbox" <%= isImport && 'checked' %>>
+                                                                    Import
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-insert" type="checkbox" <%= isInsert && 'checked' %>>
+                                                                    Insert
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-update" type="checkbox" <%= isUpdate && 'checked' %>>
+                                                                    Update
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                
+                                                        <!-- END FIELD TYPE NUMBER -->
+                                                
+                                                
+                                                        <!-- BEGIN FIELD TYPE BOOLEAN -->
+                                                        <div class="col-sm-1 col-field-type col-field-type-boolean <%= !isBoolean && 'd-none' %>"></div>
+                                                
+                                                        <div class="col-sm-2 col-field-type col-field-type-boolean <%= !isBoolean && 'd-none' %>">
+                                                            <label class="form-label">Mặc định</label>
+                                                            <select class="form-select input-field-is-default">
+                                                                <option value="0" <%= !isDefault && 'selected' %>>Non-default</option>
+                                                                <option value="1" <%= isDefault && 'selected' %>>Default</option>
+                                                            </select>
+                                                        </div>
+    
+                                                        <div class="col-sm-2 col-field-type col-field-type-boolean <%= !isBoolean && 'd-none' %>">
+                                                            <label class="form-label d-block">Giá trị mặc định</label>
+                                                            <div class="form-check form-switch form-switch-info">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-value-default" type="checkbox" <%= defaultValue === 'true' && 'checked' %>>
+                                                                    true/false
+                                                                </label>
+                                                            </div>
+                                                        </div>
+    
+                                                        <div class="col-sm-1 col-field-type col-field-type-boolean <%= !isBoolean && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-require" type="checkbox" <%= isRequire && 'checked' %>>
+                                                                    Require
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-export" type="checkbox" <%= isExport && 'checked' %>>
+                                                                    Export
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-import" type="checkbox" <%= isImport && 'checked' %>>
+                                                                    Import
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-show-list" type="checkbox" <%= isShowList && 'checked' %>>
+                                                                    Show List
+                                                                </label>
+                                                                <input type="text" class="form-control input-field-width" value="<%= widthDatatable && widthDatatable || '' %>" 
+                                                                    <% if (!isShowList) { %>
+                                                                        style="display: none;" 
+                                                                    <% } %>
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                
+                                                        <div class="col-sm-1 col-field-type col-field-type-boolean <%= !isBoolean && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-insert" type="checkbox" <%= isInsert && 'checked' %>>
+                                                                    Insert
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-update" type="checkbox" <%= isUpdate && 'checked' %> >
+                                                                    Update
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                
+                                                
+                                                        <!-- END FIELD TYPE BOOLEAN -->
+                                                
+                                                
+                                                        <!-- BEGIN FIELD TYPE DATE -->
+                                                
+                                                        <div class="col-sm-1 col-field-type col-field-type-date <%= !isDate && 'd-none' %>"></div>
+                                                        <div class="col-sm-2 col-field-type col-field-type-date <%= !isDate && 'd-none' %>">
+                                                            <label class="form-label">Mặc định</label>
+                                                            <select class="form-select input-field-is-default">
+                                                                <option value="0" <%= !isDefault && 'selected' %>>Non-default</option>
+                                                                <option value="1" <%= isDefault && 'selected' %>>Default</option>
+                                                                <option value="2" <%= defaultValue === 'datenow' && 'selected' %>>Date now</option>
+                                                            </select>
+    
+                                                            <select class="form-select input-field-date-type mt-2">
+                                                                <option value="0" disabled selected>Type</option>
+                                                                <option value="date" <%= dateType === 'date' && 'selected' %>>Date</option>
+                                                                <option value="datetime-local" <%= dateType === 'datetime-local' && 'selected' %>>Datetime local</option>
+                                                                <option value="time" <%= dateType === 'time' && 'selected' %>>Time</option>
+                                                            </select>
+                                                        </div>
+                                                
+                                                        <div class="col-sm-2 col-field-type col-field-type-date <%= !isDate && 'd-none' %>">
+                                                            <label class="form-label">Giá trị mặc định</label>
+                                                            <input type="date" class="form-control input-field-value-default" value="<%= defaultValue %>">
+    
+                                                            <select class="form-select input-field-format-date mt-2">
+                                                                <option value="0" disabled selected>Format</option>
+                                                                <option value="LT" <%= formatDate === 'LT' && 'selected' %>>01:01</option>
+                                                                <option value="LTS" <%= formatDate === 'LTS' && 'selected' %>>01:01:20</option>
+                                                                <option value="L" <%= formatDate === 'L' && 'selected' %>>17/08/2021</option>
+                                                                <option value="DD/MM/YYYY HH:MM" <%= formatDate === 'DD/MM/YYYY HH:MM' && 'selected' %>>17/08/2021 01:02</option>
+                                                                <option value="LL" <%= formatDate === 'LL' && 'selected' %>>17 tháng 8 năm 2021</option>
+                                                                <option value="ll" <%= formatDate === 'll' && 'selected' %>>17 Thg 08 2021</option>
+                                                                <option value="LLL" <%= formatDate === 'LLL' && 'selected' %>>17 tháng 8 năm 2021 01:02</option>
+                                                                <option value="LLLL" <%= formatDate === 'LLLL' && 'selected' %>>thứ ba, 17 tháng 8 năm 2021 01:02</option>
+                                                                <option value="llll" <%= formatDate === 'llll' && 'selected' %>>T3, 17 Thg 08 2021 01:03</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="col-sm-1 col-field-type col-field-type-date <%= !isDate && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-require" type="checkbox" <%= isRequire && 'checked' %>>
+                                                                    Require
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-export" type="checkbox" <%= isExport && 'checked' %>>
+                                                                    Export
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-import" type="checkbox" <%= isImport && 'checked' %>>
+                                                                    Import
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-show-list" type="checkbox" <%= isShowList && 'checked' %>>
+                                                                    Show List
+                                                                </label>
+                                                                <input type="text" class="form-control input-field-width" value="<%= widthDatatable && widthDatatable || '' %>" 
+                                                                    <% if (!isShowList) { %>
+                                                                        style="display: none;" 
+                                                                    <% } %>
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                
+                                                        <div class="col-sm-1 col-field-type col-field-type-date <%= !isDate && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-compare" type="checkbox" <%= isCompare && 'checked' %>>
+                                                                    Compare
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-insert" type="checkbox" <%= isInsert && 'checked' %>>
+                                                                    Insert
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-update" type="checkbox" <%= isUpdate && 'checked' %>>
+                                                                    Update
+                                                                </label>
+                                                            </div>
+                                                        </div>
+    
+                                                        <!-- END FIELD TYPE DATE -->
+                                                
+                                                
+                                                        <!-- BEGIN FIELD TYPE OBJECT -->
+    
+                                                        <div class="col-sm-1 col-field-type col-field-type-object <%= !isObject && 'd-none' %>"></div>
+                                                        <div class="col-sm-2 col-field-type col-field-type-object <%= !isObject && 'd-none' %>">
+                                                            <label class="form-label">Loại object</label>
+                                                            <select class="form-select input-field-type-object">
+                                                                <option value="0" <%= !ref && 'selected' %>>Embedded</option>
+                                                                <option value="1" <%= ref && 'selected' %>>Reference</option>
+                                                            </select>
+    
+                                                            <input type="text" class="form-control mt-2 input-field-reference-show <%= !ref && 'd-none' %>" placeholder="Field hiển thị" value="<%= refShow %>">
+    
+                                                            <div class="d-grid gap-2 mt-2 wrap-button-get-field <%= !isInsertUpdateFrom && 'd-none' %>">
+                                                                <button type="button" class="btn btn-outline-primary btn-get-field-from-coll">
+                                                                    Chọn field tạo dữ liệu
+                                                                </button>
+                                                            </div>
+    
+                                                            <input type="text" class="form-control mt-2 input-field-choosed-insert-update-from d-none" value="<%= dataInsertUpdateFrom && dataInsertUpdateFrom.join(',') %>">
+                                                        </div>
+    
+                                                        <div class="col-sm-2 col-field-type col-field-type-object <%= !isObject && 'd-none' %>">
+                                                            <label class="form-label">Reference</label>
+                                                            <input type="text" class="form-control input-field-value-reference" value="<%= ref %>">
+    
+                                                            <select class="form-select input-field-type-image mt-2 <%= !typeImage && 'd-none' %>">
+                                                                <option <%= !typeImage && 'selected' %>>Chọn dạng hình ảnh</option>
+                                                                <option value="1" <%= typeImage === 1 && 'selected' %>>Hình tròn</option>
+                                                                <option value="2" <%= typeImage === 2 && 'selected' %>>Hình vuông</option>
+                                                                <option value="3" <%= typeImage === 3 && 'selected' %>>Thumbnail</option>
+                                                            </select>
+
+                                                            <input type="text" class="form-control mt-2 input-field-file-type <%= !isImage && 'd-none' %>" placeholder=".png, .jpeg, .docx, .pdf" value="<%= fileType %>">
+    
+                                                            <input type="text" class="form-control mt-2 input-field-follow-by <%= isImage && 'd-none' %>" placeholder="Follow field" value="<%= followBy %>">
+                                                        </div>
+    
+                                                        <div class="col-sm-1 col-field-type col-field-type-object <%= !isObject && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-primary-key" type="checkbox" <%= isPrimary && 'checked' %>>
+                                                                    Primary key
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-require" type="checkbox" <%= isRequire && 'checked' %>>
+                                                                    Require
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-image" type="checkbox" <%= isImage && 'checked' %>>
+                                                                    Image
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-link" type="checkbox" <%= isLink && 'checked' %>>
+                                                                    Linking
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-show-list" type="checkbox" <%= isShowList && 'checked' %>>
+                                                                    Show List
+                                                                </label>
+                                                                <input type="text" class="form-control input-field-width" value="<%= widthDatatable && widthDatatable || '' %>" 
+                                                                    <% if (!isShowList) { %>
+                                                                        style="display: none;" 
+                                                                    <% } %>
+                                                                />
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-export" type="checkbox" <%= isExport && 'checked' %>>
+                                                                    Export
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-import" type="checkbox" <%= isImport && 'checked' %>>
+                                                                    Import
+                                                                </label>
+                                                            </div>
+                                                        </div>
+    
+                                                        <div class="col-sm-1 col-field-type col-field-type-object <%= !isObject && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-insert" type="checkbox" <%= isInsert && 'checked' %>>
+                                                                    Insert
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-update" type="checkbox" <%= isUpdate && 'checked' %>>
+                                                                    Update
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-insert-update-from" type="checkbox" <%= isInsertUpdateFrom && 'checked' %>>
+                                                                    Dữ liệu ánh xạ
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-big-data" type="checkbox" <%= isBigData && 'checked' %>>
+                                                                    Dữ liệu lớn
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                
+                                                
+                                                        <!-- END FIELD TYPE OBJECT -->
+                                                
+                                                
+                                                        <!-- BEGIN FIELD TYPE ARRAY -->
+    
+                                                        <div class="col-sm-1 col-field-type col-field-type-array <%= !isArray && 'd-none' %>"></div>
+                                                        <div class="col-sm-2 col-field-type col-field-type-array <%= !isArray && 'd-none' %>">
+                                                            <label class="form-label">Loại array</label>
+                                                            <select class="form-select input-field-type-array">
+                                                                <option value="0" <%= !ref && 'selected' %>>Embedded</option>
+                                                                <option value="1" <%= ref && 'selected' %>>Reference</option>
+                                                            </select>
+    
+                                                            <input type="text" class="form-control mt-2 input-field-reference-show <%= !ref && 'd-none' %>" placeholder="Field hiển thị" value="<%= refShow %>">
+                                                        </div>
+    
+                                                        <div class="col-sm-2 col-field-type col-field-type-array <%= !isArray && 'd-none' %>">
+                                                            <label class="form-label">Reference</label>
+                                                            <input type="text" class="form-control input-field-value-reference" value="<%= ref %>">
+    
+                                                            <select class="form-select input-field-type-upload mt-2 <%= !typeUpload && 'd-none' %>">
+                                                                <option <%= !typeUpload && 'selected' %> disabled>Chọn loại upload</option>
+                                                                <option value="1" <%= typeUpload === 1 && 'selected' %>>Dropify</option>
+                                                                <option value="2" <%= typeUpload === 2 && 'selected' %>>Custom</option>
+                                                            </select>
+    
+                                                            <input type="text" class="form-control mt-2 input-field-file-type <%= typeUpload !== 1 && 'd-none' %>" placeholder=".png, .jpeg, .docx, .pdf" value="<%= fileType %>">
+                                                            <input type="text" class="form-control mt-2 input-field-table-sub <%= !tableSub && 'd-none' %>" placeholder="Bảng phụ" value="<%= tableSub %>">
+                                                        </div>
+                                                
+                                                        <div class="col-sm-1 col-field-type col-field-type-array <%= !isArray && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-require" type="checkbox" <%= isRequire && 'checked' %>>
+                                                                    Required
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-export" type="checkbox" <%= isExport && 'checked' %>>
+                                                                    Export
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-import" type="checkbox" <%= isImport && 'checked' %>>
+                                                                    Import
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-show-list" type="checkbox" <%= isShowList && 'checked' %>>
+                                                                    Show List
+                                                                </label>
+                                                                <input type="text" class="form-control input-field-width" value="<%= widthDatatable && widthDatatable || '' %>" 
+                                                                    <% if (!isShowList) { %>
+                                                                        style="display: none;" 
+                                                                    <% } %>
+                                                                />
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-image" type="checkbox" <%= isImage && 'checked' %>>
+                                                                    Image
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                
+                                                        <div class="col-sm-1 col-field-type col-field-type-array <%= !isArray && 'd-none' %>">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-insert" type="checkbox" <%= isInsert && 'checked' %>>
+                                                                    Insert
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-update" type="checkbox" <%= isUpdate && 'checked' %>>
+                                                                    Update
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input input-field-is-big-data" type="checkbox" <%= isBigData && 'checked' %>>
+                                                                    Dữ liệu lớn
+                                                                </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- END FIELD TYPE ARRAY -->
+
+
+                                                        <!-- MODAL CREATE CÂU ĐIỀU KIỆN -->
+                                                        <div class="modal fade bs-example-modal-sm modal-set-condition-from-field" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="modalCreateCondition_<%= field._id %>">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h6 class="modal-title">Tạo câu điều kiện</h6>
+                                                                    </div>
+                                                                    <div class="card-body">
+
+                                                                        <div class="d-flex justify-content-between row-parent mb-3">
+                                                                            <div class="form-check mt-2">
+                                                                                <label class="form-check-label">
+                                                                                    <input class="form-check-input input-field-is-separate-condition" type="checkbox" <%= isSeparateCondition && 'checked' %>>
+                                                                                    Tách điều kiện
+                                                                                </label>
+                                                                            </div>
+                                                                            <input type="text" class="form-control input-message-response" placeholder="Message error..." style="width: 50%" value="<%= messageError %>" <%= isSeparateCondition && 'disabled' %>>
+                                                                        </div>
+
+                                                                        <div class="wrapper-condition-field row">
+                                                                            <% if (dataCompareField && dataCompareField.length) { %>
+                                                                                <% dataCompareField.forEach((compareCondition, index) => { %>
+                                                                                    <% 
+                                                                                        const { 
+                                                                                            compare, condition,
+                                                                                            isExprCondition, calculationExpr, calculationValue, calculationUnit
+                                                                                        } = compareCondition;
+                                                                                    %>
+    
+                                                                                    <div class="col-sm-12 row-condition-field mb-3">
+                                                                                        <div class="line-condition position-relative mb-2 <%= (isSeparateCondition || index === 0) && 'd-none' %>">
+                                                                                            <div class="type-condition" data-type-condition="<%= condition %>">
+                                                                                                <span class="badge badge-soft-<%= condition === '&&' ? 'primary' : 'warning' %>">
+                                                                                                    <%= condition === '&&' ? 'AND' : 'OR' %>
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="input-group">
+                                                                                            <button class="btn btn-secondary btn-add-condition-field" type="button">
+                                                                                                <i class="fas fa-plus"></i>
+                                                                                            </button>
+                                                                                            <input type="text" class="form-control input-field-from-field" placeholder="From field" disabled style="flex-grow: 3;" value="<%= compareCondition.fromField %>">
+                                                                                            <select class="form-select input-field-compare-field" style="width: 20px;flex-shrink: 1;">
+                                                                                                <option value=">" <%= compare === '>' && 'selected' %>> > </option>
+                                                                                                <option value="<" <%= compare === '<' && 'selected' %>> < </option>
+                                                                                                <option value="==" <%= compare === '==' && 'selected' %>> = </option>
+                                                                                                <option value=">=" <%= compare === '>=' && 'selected' %>> >= </option>
+                                                                                                <option value="<=" <%= compare === '<=' && 'selected' %>> <= </option>
+                                                                                            </select>
+                                                                                            <input type="text" class="form-control input-field-to-field" placeholder="To field" style="flex-grow: 3;" value="<%= compareCondition.toField %>">
+                                                                                            <label class="form-check-label ms-2 mt-2 label-input-expr <%= !isExprCondition && 'd-none' %>">
+                                                                                                <input class="form-check-input input-field-is-expr" type="checkbox" <%= isExprCondition && 'checked' %>> Expr
+                                                                                            </label>
+                                                                                        </div>
+                                                                                        <div class="input-group group-expr mt-2 <%= !isExprCondition && 'd-none' %>">
+                                                                                            <div style="visibility: hidden;flex-grow: 1;"></div>
+                                                                                            <div style="visibility: hidden;flex-grow: 1;"></div>
+                                                                                            <select class="form-select input-field-calculation" style="width: 20px;flex-grow: 1;">
+                                                                                                <option value="add" <%= calculationExpr === 'add' && 'selected' %>> Add </option>
+                                                                                                <option value="subtract" <%= calculationExpr === 'subtract' && 'selected' %>> Subtract </option>
+                                                                                            </select>
+                                                                                            <input type="number" class="form-control input-field-number-calculation" style="flex-grow: 1;" value="<%= calculationValue %>">
+                                                                                            <select class="form-select input-field-unit-calculation" style="width: 20px;flex-shrink: 1;">
+                                                                                                <option value="years" <%= calculationUnit === 'years' && 'selected' %>> years </option>
+                                                                                                <option value="months" <%= calculationUnit === 'months' && 'selected' %>> months </option>
+                                                                                                <option value="days" <%= calculationUnit === 'days' && 'selected' %>> days </option>
+                                                                                                <option value="hours" <%= calculationUnit === 'hours' && 'selected' %>> hours </option>
+                                                                                                <option value="minutes" <%= calculationUnit === 'minutes' && 'selected' %>> minutes </option>
+                                                                                                <option value="seconds" <%= calculationUnit === 'seconds' && 'selected' %>> seconds </option>
+                                                                                            </select>
+                                                                                        </div>
+                                                                                        <div class="d-flex justify-content-end row-message mt-2 <%= !isSeparateCondition && 'd-none' %>">
+                                                                                            <input type="text" class="form-control input-field-message-response" placeholder="Message error..." value="<%= compareCondition.messageError %>">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                <% }) %>
+                                                                            <% } %>
+                                                                        </div>
+
+                                                                        <div class="d-flex justify-content-end">
+                                                                            <button type="button" class="btn btn-soft-primary waves-effect waves-light me-1" data-bs-dismiss="modal">
+                                                                                Đóng
+                                                                            </button>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                
+                                                        <div class="col-sm-1">
+                                                            <span data-repeater-delete="" class="btn btn-outline-danger">
+                                                                <span class="far fa-trash-alt me-1"></span> Delete
+                                                            </span>
+                                                        </div><!--end col-->
+                                                    </div><!--end row-->
+                                                </div>
+                                            <% } %>
+                                        <% }) %>
+                                    <% } %>
+
+                                    </div>
+
+                                    <div class="form-group mb-0 row">
+                                        <div class="col-12 col-sm-6">
+                                            <span class="btn btn-outline-secondary btn-add-field">
+                                                <span class="fas fa-plus"></span> Thêm field
+                                            </span>
+                                        </div><!--end col-->
+                                    </div><!--end row-->                                         
+                                </div> <!--end repeter-->                                           
+                            </fieldset><!--end fieldset-->
+                        </form><!--end form-->
+                    </div><!--end card-body-->
+                </div><!--end card-->
+            </div> <!-- end col -->
+
+        </div> <!-- end row -->
+
+    </div><!-- container -->
+
+
+<%- include('./components/templates') %> 
+<%- include('./components/modals') %> 

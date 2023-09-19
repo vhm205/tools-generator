@@ -1,0 +1,179 @@
+<script>
+    $(document).ready(function() {
+
+
+        let priceCleave = initOneCleave("#testing__price");
+
+
+        initDropify('#testing__avatar');
+
+        initUploadCustom();
+
+        $(document).on('click', '.btn-remove-image', function() {
+            $(this).closest('.box-preview-image').addClass('d-none');
+            $(this).closest('.box-dropzone-file').find('.box-drag-and-drop').removeClass('d-none');
+        });
+
+
+        $('#testing__price').on('input', function() {
+            const value = $(this).val();
+            if (!value) {
+                enableValidate('#testing__price', "Vui lòng nhập giá");
+            } else {
+                disableValidate('#testing__price');
+            }
+        });
+
+
+        window.onbeforeunload = function() {
+            return "";
+        };
+
+        $(document).on('change input', '.form-control, .form-select, input', function() {
+            $('#btnConfirmUpdate').attr('disabled', false);
+        });
+
+
+
+        const getFormUpdate = () => {
+            let price = priceCleave.getRawValue();
+
+            return {
+                price,
+            };
+        }
+
+        const checkFormValid = params => {
+            let {
+                price,
+            } = params;
+            let fieldsError = [];
+
+
+            if (!price) {
+                fieldsError = [...fieldsError, 'testing__price'];
+                enableValidate('#testing__price', "Vui lòng nhập giá");
+            } else {
+                if (!fieldsError.includes('testing__price')) {
+                    disableValidate('#testing__price');
+                }
+            }
+
+            if (fieldsError.length) {
+                return {
+                    error: true,
+                    msg: 'Form nhập không hợp lệ'
+                };
+            }
+
+            return {
+                error: false
+            };
+        }
+
+        const callAjaxUpdate = dataUpdate => {
+            $.ajax({
+                url: "<%= CF_ROUTINGS_TESTING.UPDATE_TESTING_BY_ID %>",
+                method: 'PUT',
+                data: dataUpdate,
+            }).done(resp => {
+                const {
+                    error,
+                    message
+                } = resp;
+
+                if (error) {
+                    return AlertCustom({
+                        title: 'THÔNG BÁO',
+                        message: message,
+                        icon: 'warning'
+                    });
+                }
+
+                AlertCustom({
+                    title: 'THÔNG BÁO',
+                    message: "Cập nhật testing thành công",
+                    icon: 'info'
+                });
+            })
+            .fail(err => AlertCustom({
+                title: 'THÔNG BÁO',
+                message: err.message,
+                icon: 'error'
+            }))
+            .always(() => {
+                disableButtonLoading('#btnConfirmUpdate');
+                $('#btnConfirmUpdate').attr('disabled', true);
+            })
+        }
+
+
+
+        $('#btnConfirmUpdate').on('click', async function() {
+            let dataUpdate = getFormUpdate();
+            let {
+                error,
+                msg
+            } = checkFormValid(dataUpdate);
+            if (error) return AlertCustom({
+                title: 'THÔNG BÁO',
+                message: msg,
+                icon: 'warning'
+            });
+
+            enableButtonLoading(this);
+            dataUpdate.testingID = $(this).attr('__testingID');
+
+
+            dataUpdate.images = [];
+            $('.box-dropzone-file.dropzone-images .box-drag-and-drop.d-none').each((i, elem) => {
+                const name = $(elem).attr('name');
+                const size = $(elem).attr('size');
+                const type = $(elem).attr('type');
+                const path = $(elem).attr('path');
+
+                if (name && path) {
+                    dataUpdate.images = [...dataUpdate.images, {
+                        name,
+                        size,
+                        type,
+                        path
+                    }]
+                }
+            })
+
+            dataUpdate.images2 = [];
+            $('.box-dropzone-file.dropzone-images2 .box-drag-and-drop.d-none').each((i, elem) => {
+                const name = $(elem).attr('name');
+                const size = $(elem).attr('size');
+                const type = $(elem).attr('type');
+                const path = $(elem).attr('path');
+
+                if (name && path) {
+                    dataUpdate.images2 = [...dataUpdate.images2, {
+                        name,
+                        size,
+                        type,
+                        path
+                    }]
+                }
+            })
+
+
+            let avatarInputFiles = $("#testing__avatar").prop('files');
+
+            if (avatarInputFiles && avatarInputFiles.length) {
+                const links = await getLinksUpload(avatarInputFiles);
+
+                dataUpdate.avatar = {
+                    name: links[0].fileName,
+                    path: links[0].uri,
+                    type: links[0].type,
+                    size: avatarInputFiles[0].size,
+                }
+            }
+
+            callAjaxUpdate(dataUpdate);
+        });
+    })
+</script>

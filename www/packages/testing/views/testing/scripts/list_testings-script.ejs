@@ -1,0 +1,1773 @@
+<script>
+    $(document).ready(function() {
+
+        initDropify('#file__excel');
+
+        let opts = {};
+
+
+
+
+
+        let optSortDataTable = {};
+        const dataTable = $('#tableListTesting').DataTable({
+            'iDisplayLength': 25,
+            "aaSorting": [],
+            ...languageDataTable,
+
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "type": "POST",
+                "url": '/testing/list-testing-server-side',
+                "dataType": "json",
+                data: d => {
+                    optSortDataTable = d;
+                    return {
+                        ...d,
+                        ...opts
+                    }
+                }
+            },
+            "columns": [{
+                    "data": "index",
+                    "width": "5%"
+                },
+                {
+                    "data": "indexSTT",
+                    "width": "5%",
+                    orderable: false
+                },
+                {
+                    "data": "avatar"
+                }, {
+                    "data": "price"
+                },
+                {
+                    "data": "createAt"
+                }
+            ],
+
+        });
+
+        function checkFilterOfRef(input) {
+            let ref = $(input).attr('_ref');
+            let class_ref = '';
+            let refID = '';
+            if (ref) {
+                class_ref = "." + ref + "ID";
+                refID = ref + "ID";
+            } else {
+                ref = '';
+            }
+
+            return {
+                ref: refID,
+                class_ref,
+                coll: ref
+            };
+        }
+
+        $(document).on('click', '.btn-add-filter', function() {
+            const tid = randomStringFixLengthCode(15);
+            const {
+                class_ref,
+                ref
+            } = checkFilterOfRef(this);
+
+            const template = $('[data-repeater-item].d-none' + class_ref)
+                .clone()
+                .removeClass('d-none')
+                .attr('__tid', tid);
+
+            // Append condition field
+            $('[data-repeater-list="condition' + ref + '"]').append(template);
+
+            // Set select 2
+            template.find('.input-field-compare, .input-select-value').each((i, elem) => {
+                $(elem).select2({
+                    dropdownParent: template,
+                    width: '100%'
+                });
+            })
+
+            template.find('.input-field-name, .input-field-ref-name').select2({
+                dropdownParent: template,
+                width: "100%"
+            });
+
+            if ($('[data-repeater-item]:not(.d-none)' + class_ref).length > 1) {
+                template.find('.line-condition').removeClass('d-none');
+            }
+        });
+        $('.btn-add-filter').trigger('click');
+
+        $(document).on('click', '.type-condition', function() {
+            const {
+                class_ref
+            } = checkFilterOfRef(this);
+            const typeCondition = $(this).attr('data-type-condition');
+            const template = $('[data-repeater-item] .type-condition' + class_ref);
+
+            if (typeCondition === 'OR') {
+                template
+                    .attr('data-type-condition', 'AND')
+                    .children()
+                    .text('AND')
+                    .addClass('badge-soft-primary')
+                    .removeClass('badge-soft-warning')
+            } else {
+                template
+                    .attr('data-type-condition', 'OR')
+                    .children()
+                    .text('OR')
+                    .addClass('badge-soft-warning')
+                    .removeClass('badge-soft-primary')
+            }
+        });
+
+        $(document).on('change', '.input-field-compare', function() {
+            const template = $(this).closest('[data-repeater-item]');
+            const parentType = $(this).parent().data('type');
+            const value = $(this).val();
+
+            switch (value) {
+                case 'equal':
+                case 'not-equal':
+                case 'greater-than':
+                case 'less-than':
+                case 'start-with':
+                case 'end-with':
+                case 'is-contains':
+                case 'not-contains':
+                case 'before':
+                case 'after':
+                    if (parentType === 'date') {
+                        $(this).parent().find('input[type="date"]').removeClass('d-none');
+                        $(this).parent().find('input[type="number"]').addClass('d-none');
+                    } else {
+                        $(this).parent().find('.input-field-value').removeClass('d-none');
+                        $(this).parent().find('.input-select-value').next().removeClass('d-none');
+                    }
+                    break;
+                case 'before-hours':
+                case 'before-days':
+                case 'before-months':
+                    $(this).parent().find('input[type="date"]').addClass('d-none');
+                    $(this).parent().find('input[type="number"]').removeClass('d-none');
+                    break;
+                default:
+                    $(this).parent().find('.input-field-value').addClass('d-none');
+                    $(this).parent().find('.input-select-value').next().addClass('d-none');
+                    break;
+            }
+        });
+
+        $(document).on('change', '.input-field-name', function() {
+            const template = $(this).closest('[data-repeater-item]');
+            const value = $(this).val();
+
+            template.find('[data-follow]').addClass('d-none').removeClass('d-flex');
+            template.find(`[data-follow=${value}]`).removeClass('d-none').addClass('d-flex');
+        });
+
+        $(document).on('change', '.input-field-ref-name', function() {
+            const template = $(this).closest('[data-repeater-item]');
+            const parent = $(this).parent();
+            const value = $(this).val();
+
+            parent.find('[data-follow]').addClass('d-none').removeClass('d-flex');
+            parent.find(`[data-follow=${value}]`).removeClass('d-none').addClass('d-flex');
+        });
+
+        $(document).on('click', '.btn-apply-filter', function() {
+            const {
+                class_ref,
+                coll
+            } = checkFilterOfRef(this);
+            const conditions = $('[data-repeater-item]:not(.d-none)');
+            opts.filter = [];
+
+            conditions.each((i, condition) => {
+                let fieldName = $(condition).find('.input-field-name').val();
+                let type = $(condition).find('.input-field-name').find(":selected").data('type');
+                let fieldCondition = $(condition).find(`[data-follow=${fieldName}]`);
+
+                if (type && fieldName) {
+                    if (type === 'ref') {
+                        let fieldRefName = fieldCondition.find('.input-field-ref-name').val();
+                        let typeFieldRef = fieldCondition.find('.input-field-ref-name').find(":selected").data('type');
+                        let fieldRefCondition = fieldCondition.find(`[data-follow=${fieldRefName}]`);
+                        let cond = fieldRefCondition.find('.input-field-compare').val();
+                        let value = fieldRefCondition.find('.input-field-value:not(.d-none), .input-select-value').val();
+
+                        opts.filter = [...opts.filter, {
+                            type,
+                            fieldRefName: fieldName,
+                            ref: {
+                                type: typeFieldRef,
+                                fieldName: fieldRefName,
+                                cond,
+                                value
+                            }
+                        }]
+                    } else {
+                        let cond = fieldCondition.find('.input-field-compare').val();
+                        let value = fieldCondition.find('.input-field-value:not(.d-none), .input-select-value').val();
+
+                        opts.filter = [...opts.filter, {
+                            type,
+                            fieldName: fieldName === 'rootCreateAt' ? 'createAt' : fieldName,
+                            cond,
+                            value
+                        }]
+                    }
+                }
+
+            })
+
+            if (class_ref) { // FILTER DYNAMIC IMPORT
+                opts.condition = $('[data-repeater-item]:not(.d-none) .type-condition' + class_ref).attr('data-type-condition');
+                ajaxFilterDynamicImport(coll);
+            } else { // DATATABLE
+                $('.modal-backdrop').addClass('unblur');
+                opts.condition = $('[data-repeater-item]:not(.d-none) .type-condition').attr('data-type-condition');
+                dataTable.ajax.reload();
+            }
+        })
+
+        $('.input-search-text').on('keypress', function(e) {
+            if (e.which == 13) {
+                opts.keyword = $(this).val();
+                dataTable.ajax.reload();
+            }
+        });
+
+        $('.btn-filter').on('click', function() {
+            opts.keyword = $('.input-search-text').val();
+            dataTable.ajax.reload();
+        });
+
+        $(document).on('click', '.btn-discard-filter', function() {
+            const {
+                class_ref,
+                coll
+            } = checkFilterOfRef(this);
+
+            opts = {};
+            if (class_ref) { // FILTER DYNAMIC IMPORT
+                ajaxFilterDynamicImport(coll);
+            } else { // DATATABLE
+                dataTable.ajax.reload();
+                $('.modal-backdrop').addClass('unblur');
+                $('[data-repeater-item]:not(.d-none)').remove();
+                $('.btn-add-filter').trigger('click');
+            }
+        });
+
+        $('#offcanvasRight').on('hide.bs.offcanvas', function() {
+            $('.modal-backdrop').removeClass('unblur');
+        });
+
+        $(document).on('click', '.status-testing-choice', function() {
+            let valueChoice = $(this).attr('_value');
+            let keyChoice = $(this).attr('_key');
+
+            if (keyChoice && valueChoice) {
+                opts.objFilterStatic = {
+                    [keyChoice]: valueChoice
+                }
+
+                dataTable.ajax.reload();
+            } else {
+                opts = {};
+                dataTable.ajax.reload();
+            }
+        })
+
+        $(document).on('click', '.btn-remove-testing', async function() {
+            const testingID = $(this).attr('__testingID');
+
+            await ConfirmCustomAjax({
+                title: 'Bạn có chắc chắn muốn xoá TESTING?',
+                icon: 'question',
+                cb: result => {
+                    const {
+                        error,
+                        message
+                    } = result.value;
+
+                    if (error) {
+                        return AlertCustom({
+                            title: 'THÔNG BÁO',
+                            message: message,
+                            icon: 'warning'
+                        });
+                    }
+
+                    $(this).closest('tr').remove();
+                    AlertCustom({
+                        title: 'THÔNG BÁO',
+                        message: 'Xoá TESTING thành công',
+                        icon: 'info'
+                    });
+                },
+                preConfirm: () => {
+                    if (!testingID) {
+                        return AlertCustom({
+                            title: 'THÔNG BÁO',
+                            message: 'Không thể xoá TESTING vui lòng thử reload lại trang',
+                            icon: 'warning'
+                        });
+                    }
+
+                    return $.ajax({
+                        type: "DELETE",
+                        url: "/testing/delete/" + testingID,
+                    })
+                }
+            });
+
+        });
+
+        function showButtonAction() {
+            let checkItemChecked = $('.check-record.checked');
+            if (checkItemChecked.length) {
+                $('.action-testing').attr('disabled', false);
+            } else {
+                $('.action-testing').attr('disabled', true);
+            }
+        };
+
+        $(document).on('change', '.check-all-record', function() {
+            let check = $(this).is(':checked');
+            if (check) {
+                $('.check-record').each((index, elem) => {
+                    $(elem).prop('checked', true);
+                    $(elem).addClass('checked');
+                });
+            } else {
+                $('.check-record').each((index, elem) => {
+                    $(elem).prop('checked', false);
+                    $(elem).removeClass('checked');
+                });
+            }
+            showButtonAction()
+        })
+
+        $(document).on('change', '.check-record', function() {
+            let check = $(this).is(':checked');
+            $('.check-all-record').prop('checked', false);
+            if (check) {
+                $(this).addClass('checked');
+            } else {
+                $(this).removeClass('checked');
+            }
+            showButtonAction()
+        });
+
+        $(document).on('click', '.action-testing', function() {
+            let checkItemChecked = $('.check-record.checked');
+            $('.show-clip-board').addClass('d-none');
+
+            if (checkItemChecked.length == 1) {
+                $('.update-testing').removeClass('d-none');
+                $('.delete-testing').removeClass('d-none');
+            } else if (checkItemChecked.length > 1) {
+                $('.update-testing').addClass('d-none');
+                $('.delete-testing').removeClass('d-none');
+            } else {
+                $('.update-testing').addClass('d-none');
+                $('.delete-testing').addClass('d-none');
+            }
+        })
+
+        $(document).on('click', '.update-testing', function(e) {
+            e.preventDefault();
+            let checkItemChecked = $('.check-record.checked');
+            if (checkItemChecked.length > 1 || checkItemChecked.length == 0) {
+                return AlertCustom({
+                    title: 'THÔNG BÁO',
+                    message: 'Bạn chỉ có thể chỉnh sửa một dữ liệu',
+                    icon: 'warning'
+                });
+            }
+
+            let testingID = $(checkItemChecked[0]).attr('id');
+            location.href = '/testing/update-testing-by-id?testingID=' + testingID;
+        })
+
+        $(document).on('click', '.delete-testing', async function(e) {
+            e.preventDefault();
+            let checkItemChecked = $('.check-record.checked');
+            if (checkItemChecked.length == 0) {
+                return AlertCustom({
+                    title: 'THÔNG BÁO',
+                    message: 'Bạn phải chọn ít nhất một dữ liệu để xóa',
+                    icon: 'warning'
+                });
+            }
+
+            let listItemID = [];
+            $('.check-record.checked').each((index, elem) => {
+                let testingID = $(elem).attr('id');
+                listItemID = [
+                    ...listItemID,
+                    testingID
+                ]
+            })
+
+            await ConfirmCustomAjax({
+                title: 'Bạn có chắc chắn muốn xoá?',
+                icon: 'question',
+                cb: result => {
+                    const {
+                        error,
+                        message
+                    } = result.value;
+
+                    if (typeof result.value === 'string') {
+                        return AlertCustom({
+                            title: 'THÔNG BÁO',
+                            message: 'Bạn không có quyền xóa',
+                            icon: 'warning'
+                        });
+                    }
+
+                    if (error) {
+                        return AlertCustom({
+                            title: 'THÔNG BÁO',
+                            message: message,
+                            icon: 'warning'
+                        });
+                    }
+
+                    setTimeout(() => window.location.reload(), 1500);
+                    AlertCustom({
+                        title: 'THÔNG BÁO',
+                        message: 'Xoá thành công',
+                        icon: 'info'
+                    });
+                },
+                preConfirm: () => {
+                    if (!listItemID.length) {
+                        return AlertCustom({
+                            title: 'THÔNG BÁO',
+                            message: 'Không thể xoá vui lòng thử reload lại trang',
+                            icon: 'warning'
+                        });
+                    }
+
+                    return $.ajax({
+                        type: "POST",
+                        url: "/testing/delete-testing-by-list-id",
+                        data: {
+                            testingID: listItemID
+                        }
+                    })
+                }
+            });
+        })
+
+        function changeCallAjaxGetHistory(arrayChoiced) {
+            arrayChoiced && arrayChoiced.length && arrayChoiced.map(item => {
+                $('.check-field-' + item).trigger('click')
+            })
+        }
+
+        let arrayItemHistoryChoice = []; // LẤY HISTORY ITEM ĐÃ CHỌN
+        let nameOfParentColl = ''; // TÊN CỦA COLL CHỌN EXPORT
+        let arrayDataEnum = []; // DANH SÁCH DATAENUM VS ISSTATUS
+
+        function ajaxGetFieldColl({
+            nameColl,
+            type,
+            input,
+            refFrom,
+            countRefBefore,
+            fieldID,
+            clear
+        }) {
+            $.ajax({
+                url: '/get-info-coll?nameColl=' + nameColl + '&isExport=true',
+                method: 'GET',
+                success: resp => {
+                    if (!resp.error) {
+                        let listField = '';
+                        if (type == 'origin') {
+                            if (resp.listHistoryChoice) {
+                                arrayItemHistoryChoice = resp.listHistoryChoice.list_type_coll;
+                            }
+                        }
+                        let arrayChoiced = [];
+                        resp.data.map(item => {
+                            let ref = '';
+                            let icon = '';
+                            let countRef = (type == 'origin') ? 1 : countRefBefore;
+                            let classParent = (type == 'origin') ? "check-field-coll-parent" : "";
+
+                            let collIsRefFrom = refFrom ? refFrom : '';
+                            let name = item.note ? item.note : item.name;
+                            let nameCollChoice = (resp.collChoice && !resp.collChoice.error && resp.collChoice.data.description) ? resp.collChoice.data.description : resp.collChoice.data.name;
+
+                            if (arrayItemHistoryChoice && arrayItemHistoryChoice.length) {
+                                if (arrayItemHistoryChoice.includes(item._id)) {
+                                    arrayChoiced = [
+                                        ...arrayChoiced,
+                                        item._id
+                                    ]
+                                } else {
+                                    if (type == 'populate') {
+                                        arrayChoiced = [
+                                            ...arrayChoiced,
+                                            item._id
+                                        ]
+                                    }
+                                }
+                            } else { // LOẠI POPULATE THÌ CHO SELECT ALL
+                                if (type == 'populate') {
+                                    arrayChoiced = [
+                                        ...arrayChoiced,
+                                        item._id
+                                    ]
+                                }
+                            }
+
+                            let dataEnum = '';
+                            if (item.isStatus) {
+                                dataEnum += item.dataEnum.map(isStatus => isStatus.title);
+                                arrayDataEnum = [
+                                    ...arrayDataEnum,
+                                    {
+                                        _id: item._id,
+                                        dataEnum: item.dataEnum
+                                    }
+                                ]
+                            }
+
+                            if (item.ref) {
+                                ref = item.ref;
+                                let checkClassRefWasShowed = $('.ref-' + item.ref);
+                                if (!checkClassRefWasShowed.length) {
+                                    const COUNT_CAN_POPULATE = 3;
+                                    if (countRef < COUNT_CAN_POPULATE) {
+                                        icon = '<i class="not-check-all-field far fa-star" _collID = "' + item._id + '" style="margin-left: 5px;font-size: 12px;"></i>';
+                                        listField += '<div style="padding-bottom: 0px;" class="list-group-item list-group-item-' + item._id + ' checkbox checkbox-success"> <div class="row"><div class="col-lg-8">';
+                                        let input = '<input _nameCollChoice = "' + nameCollChoice + '"  _dataEnum = "' + dataEnum + '" _type = "' + item.type + '"  _countRef ="' + countRef + '" _note="' + name + '" _refFrom = "' + collIsRefFrom + '" _typeColl ="' + type + '" _coll="' + nameColl + '" _ref="' + ref + '" id="' + item._id + '" type="checkbox" class="item-coll-' + nameColl + ' check-field-coll ' + classParent + ' check-field-' + item._id + ' ref-' + ref + '" _value="' + item.name + '"><label class="label-export" for="' + item._id + '">' + name + icon + '</label>'
+                                        listField += input + ' </div><div class="col-lg-4"><span class="' + nameColl + "-" + item.name + '-badge badge-' + item.ref + ' badge rounded-pill badge-outline-warning">Chọn</span></div></div></div>'
+                                    }
+                                }
+                            } else {
+                                listField += '<div style="padding-bottom: 0px;" class="list-group-item list-group-item-' + item._id + ' checkbox checkbox-success"> <div class="row"><div class="col-lg-8">';
+                                let input = '<input _nameCollChoice = "' + nameCollChoice + '"  _dataEnum = "' + dataEnum + '" _type = "' + item.type + '" _countRef ="' + countRef + '" _note="' + name + '" _refFrom = "' + collIsRefFrom + '" _typeColl ="' + type + '" _coll="' + nameColl + '" _ref="' + ref + '" id="' + item._id + '" type="checkbox" class="item-coll-' + nameColl + ' check-field-coll ' + classParent + ' check-field-' + item._id + ' ref-' + ref + '" _value="' + item.name + '"><label class="label-export" for="' + item._id + '">' + name + icon + '</label>'
+                                listField += input + ' </div><div class="col-lg-4"><span class="' + nameColl + "-" + item.name + '-badge badge rounded-pill badge-outline-warning">Chọn</span></div></div></div>'
+                                // listField += '<div class="list-group-item checkbox checkbox-success"><input _countRef ="' + countRef + '" _note="' + name + '" _refFrom = "' + collIsRefFrom + '" _typeColl ="' + type + '" _coll="' + nameColl + '" _ref="' + ref + '" id="' + item._id + '" type="checkbox" class="check-field-coll '+ classParent +'" _value="' + item.name + '"><label for="' + item._id + '">' + name + icon + '</label></div>';
+                            }
+                        });
+
+                        if (type == 'origin') {
+                            nameOfParentColl = resp.collChoice.data.description
+                            $('.totalItem').text(resp.data.length);
+                            $('.list-field-coll-print').empty();
+                            $('.list-field-coll-print').append(listField);
+                        } else {
+                            let dataToAppend = '<ul class= "' + nameColl + ' list-group list-group-flush" style="padding-left: 20px;">' + listField + '</ul>';
+                            $(input).parents('.list-group-item-' + fieldID).append(dataToAppend);
+                        }
+                        if (!clear) {
+                            changeCallAjaxGetHistory(arrayChoiced);
+                        }
+                    }
+                }
+            }).done(() => {
+                dragula([document.querySelector('.list-field-coll-print')])
+            });
+        }
+
+        $(document).on('click', '.print-testing', function() {
+            $('.list-field-coll-print').empty();
+
+            ajaxGetFieldColl({
+                nameColl: 'testing',
+                type: 'origin'
+            });
+            $('.btn-export-excel').removeClass('d-none');
+            $('.show-clip-board').addClass('d-none');
+            $('.option-choose-export').removeClass('d-none');
+        })
+
+        function changeCountItemCheck() {
+            let listItemChecked = $('.check-field-coll.checked');
+            let listTotalItem = $('.check-field-coll');
+            $('.countItemChoice').text(listItemChecked.length);
+            $('.totalItem').text(listTotalItem.length);
+        }
+
+        function clickShowField(input) {
+            let ref = $(input).attr('_ref');
+            let refFrom = $(input).attr('_coll');
+            let _countRef = $(input).attr('_countRef');
+            let value = $(input).attr('_value');
+            let fieldID = $(input).attr('id');
+            let check = $(input).is(':checked');
+            let countRefCanPopulate = Number(_countRef) + 1;
+
+            return {
+                ref,
+                refFrom,
+                _countRef,
+                value,
+                fieldID,
+                check,
+                countRefCanPopulate
+            }
+        }
+
+        function changeCheckField(check, ref, countRefCanPopulate, fieldID, refFrom, input, value) {
+            if (check) {
+                if (countRefCanPopulate <= 3) {
+                    if (ref) {
+                        ajaxGetFieldColl({
+                            nameColl: ref,
+                            type: 'populate',
+                            input: input,
+                            refFrom: refFrom,
+                            countRefBefore: countRefCanPopulate,
+                            fieldID: fieldID,
+                        });
+                    }
+                }
+                $(input).addClass('checked');
+                $('.' + refFrom + '-' + value + '-badge').removeClass('badge-outline-warning');
+                $('.' + refFrom + '-' + value + '-badge').addClass('badge-outline-success');
+                $('.' + refFrom + '-' + value + '-badge').text('Đã chọn');
+            } else {
+                $(input).removeClass('checked');
+
+                if (refFrom) {
+                    let listItem = $('.item-coll-' + refFrom + '.checked');
+                    if (!listItem.length) {
+                        $('.ref-' + refFrom).prop('checked', false);
+                        $('.' + refFrom).remove();
+                        $('.badge-' + refFrom).removeClass('badge-outline-success');
+                        $('.badge-' + refFrom).addClass('badge-outline-warning');
+                        $('.badge-' + refFrom).text('Chọn');
+                    }
+                }
+
+                if (ref) {
+                    $('.' + ref).remove();
+                }
+                $('.' + refFrom + '-' + value + '-badge').removeClass('badge-outline-success');
+                $('.' + refFrom + '-' + value + '-badge').addClass('badge-outline-warning');
+                $('.' + refFrom + '-' + value + '-badge').text('Chọn');
+            }
+            changeCountItemCheck();
+        }
+
+        $(document).on('click', '.check-field-coll', function() {
+            let {
+                ref,
+                refFrom,
+                _countRef,
+                value,
+                fieldID,
+                check,
+                countRefCanPopulate
+            } = clickShowField(this);
+            changeCheckField(check, ref, countRefCanPopulate, fieldID, refFrom, this, value);
+        });
+
+        $(document).on('click', '.btn-clear-all-field-choice', function() {
+            ajaxGetFieldColl({
+                nameColl: 'testing',
+                type: 'origin',
+                clear: 'clearAll'
+            });
+            $('.countItemChoice').text('0');
+        })
+
+        $(document).on('click', '.btn-export-excel', function() {
+            const CHOOSE_CSV = 1;
+            const CHOOSE_XLSX = 2;
+            const CHOOSE_VALID = [CHOOSE_CSV, CHOOSE_XLSX]
+
+            let arrayItemChecked = [];
+            let checkRecordChecked = $('.check-record.checked');
+            if (checkRecordChecked && checkRecordChecked.length) {
+                checkRecordChecked.each((index, elem) => {
+                    let testingID = $(elem).attr('id');
+                    arrayItemChecked = [
+                        ...arrayItemChecked,
+                        testingID
+                    ]
+                })
+            }
+
+            $('.option-choose-export').addClass('d-none');
+
+            let checkItemChecked = $('.check-field-coll.checked');
+            let chooseCSV = $('.chooseCSV:checked').val();
+
+            if (Number.isNaN(Number(chooseCSV)) || !CHOOSE_VALID.includes(Number(chooseCSV))) {
+                return AlertCustom({
+                    title: 'THÔNG BÁO',
+                    message: "Loại Xuất không hợp lệ",
+                    icon: 'warning'
+                });
+            }
+
+            if (checkItemChecked.length == 0) {
+                return AlertCustom({
+                    title: 'THÔNG BÁO',
+                    message: 'Bạn phải chọn ít nhất một thuộc tính',
+                    icon: 'warning'
+                });
+            }
+
+            let listItemID = [];
+            $('.check-field-coll.checked').each((index, elem) => {
+                let name = $(elem).attr('_value');
+                let coll = $(elem).attr('_coll');
+                let type = $(elem).attr('_typeColl');
+                let ref = $(elem).attr('_ref');
+                let refFrom = $(elem).attr('_refFrom');
+                let note = $(elem).attr('_note');
+                let fieldID = $(elem).attr('id');
+                let typeVar = $(elem).attr('_type');
+                let nameCollChoice = $(elem).attr('_nameCollChoice');
+
+                let dataEnum = [];
+                arrayDataEnum && arrayDataEnum.length && arrayDataEnum.map(item => {
+                    if (item._id == fieldID) {
+                        dataEnum = item.dataEnum
+                    }
+                })
+
+                let object = name;
+                if (type == 'populate') {
+                    object = coll + '.' + name;
+                }
+
+                listItemID = [...listItemID, {
+                    name,
+                    coll,
+                    ref,
+                    refFrom,
+                    note,
+                    fieldID: fieldID,
+                    typeVar,
+                    dataEnum,
+                    nameCollChoice
+                }]
+            })
+            // $('.list-field-coll-print').empty();
+            // $('.list-field-coll-print').append('<div class="d-flex" style="align-items: center; justify-content: center;"><img src="../../../../../template/admin/assets/images/icon-loading.gif" alt="" style=""></div>')
+            $.ajax({
+                url: '/testing/list-testing-excel',
+                method: 'POST',
+                data: {
+                    listItemExport: listItemID,
+                    chooseCSV,
+                    filter: opts.filter,
+                    objFilterStatic: opts.objFilterStatic,
+                    condition: opts.condition,
+                    nameOfParentColl,
+                    ...optSortDataTable,
+                    keyword: opts.keyword,
+                    arrayItemChecked
+                },
+                success: resp => {
+                    if (resp.error) {
+                        return AlertCustom({
+                            title: 'THÔNG BÁO',
+                            message: resp.message,
+                            icon: 'warning'
+                        });
+                    } else {
+                        if (chooseCSV == CHOOSE_CSV) {
+                            $('.show-clip-board').removeClass('d-none');
+                            $('.show-url-export').val(resp.domain + resp.data);
+                            $('.list-field-coll-print').empty();
+                            $('.btn-export-excel').addClass('d-none');
+                            // $('.list-field-coll-print').append('<h5 style= "overflow-wrap: anywhere;">Copy: ' + resp.domain + resp.data + '</h5>')
+                        } else {
+                            // window.location.href = resp.data;
+                            return AlertCustom({
+                                title: 'THÔNG BÁO',
+                                message: 'Bạn đã cấu hình EXPORT thành công',
+                                icon: 'success'
+                            });
+                            // $('.list-field-coll-print').empty();
+                            // $('.alert-export-success').removeClass('d-none');
+                            // $('#exampleModalDefault').modal('hide');
+                        }
+                    }
+                }
+            })
+        });
+
+        $(document).on('click', '.download-excel-export', function() {
+
+            $('.loading-excel-export').removeClass('d-none');
+            let arrayItemChecked = [];
+            let checkRecordChecked = $('.check-record.checked');
+            if (checkRecordChecked && checkRecordChecked.length) {
+                checkRecordChecked.each((index, elem) => {
+                    let limit_kpi_configID = $(elem).attr('id');
+                    arrayItemChecked = [
+                        ...arrayItemChecked,
+                        limit_kpi_configID
+                    ]
+                })
+            }
+
+            $.ajax({
+                url: '/testing/dowload-testing-excel-export',
+                method: 'POST',
+                data: {
+                    filter: opts.filter,
+                    objFilterStatic: opts.objFilterStatic,
+                    condition: opts.condition,
+                    ...optSortDataTable,
+                    keyword: opts.keyword,
+                    arrayItemChecked
+                },
+                success: resp => {
+                    if (resp.error) {
+                        return AlertCustom({
+                            title: 'THÔNG BÁO',
+                            message: resp.message,
+                            icon: 'warning'
+                        });
+                    } else {
+                        window.location.href = resp.data;
+                    }
+                }
+            }).done(() => $('.loading-excel-export').addClass('d-none'))
+        });
+
+        //=======================IMPORT EXCEL=======================
+
+        // FUNCTION: TRẢ VỀ DATA DYNAMIC ĐÃ FILTER
+        function getDataDynamic(resp, listField, dataDynamicHistory) {
+            let dataDynamic = [];
+            resp.data && resp.data.length && resp.data.map(item => {
+                listField.map((elem, index) => {
+                    let value = item[elem];
+                    if (dataDynamicHistory && dataDynamicHistory.length) { // CHECK HISTORY IMPORT
+                        if (!dataDynamicHistory.includes(value)) {
+                            value = '';
+                        }
+                    }
+
+                    if (value) {
+                        if (!dataDynamic.length) {
+                            dataDynamic = [{
+                                variable: elem,
+                                dataDynamic: [item[elem]]
+                            }];
+                        } else {
+                            let mark = false;
+                            dataDynamic.map((value, index) => {
+                                if (value.variable == elem) {
+                                    mark = true;
+                                    dataDynamic[index].dataDynamic = [
+                                        ...dataDynamic[index].dataDynamic,
+                                        item[elem]
+                                    ]
+                                }
+                            });
+
+                            if (!mark) {
+                                dataDynamic = [
+                                    ...dataDynamic,
+                                    {
+                                        variable: elem,
+                                        dataDynamic: [item[elem]]
+                                    }
+                                ];
+                            }
+                        }
+                    }
+                });
+            });
+            return {
+                dataDynamic
+            };
+        }
+
+        // FUNCTION: AJAX BỘ LỌC THEO COLL
+        let arrayValueDynamicChoice = [];
+        let conditionDeleteImport = {};
+
+        function ajaxFilterDynamicImport(ref, dataDynamicHistory) {
+            if (ref == 'testing') {
+                conditionDeleteImport = opts;
+                opts = {};
+            } else {
+                $.ajax({
+                    url: '/' + ref + '/list-' + ref + '-import',
+                    method: 'POST',
+                    data: {
+                        start: 0,
+                        length: 100,
+                        ...opts
+                    },
+                    success: resp => {
+                        if (!resp.error) {
+                            let {
+                                listField
+                            } = checkListFieldRefDynamic(ref);
+
+                            arrayValueDynamicChoice = arrayValueDynamicChoice.filter(item => item.coll != ref);
+                            let {
+                                dataDynamic
+                            } = getDataDynamic(resp, listField, dataDynamicHistory);
+
+                            if (dataDynamicHistory && dataDynamicHistory.length) {
+                                arrayValueDynamicChoice = [ // DATA DYNAMIC HISTORY
+                                    ...arrayValueDynamicChoice,
+                                    {
+                                        coll: ref,
+                                        dataDynamic
+                                    }
+                                ];
+                            } else {
+                                arrayValueDynamicChoice = [ // DATA DYNAMIC FILTER
+                                    ...arrayValueDynamicChoice,
+                                    {
+                                        coll: ref,
+                                        dataDynamic
+                                    }
+                                ];
+                            }
+
+                            var randomColor = Math.floor(Math.random() * 16777215).toString(16);
+                            if (dataDynamic && dataDynamic.length) {
+                                $('.span-' + ref).text(' (' + dataDynamic[0].dataDynamic.length + ')');
+                                $('.span-' + ref).css('color', '#' + randomColor);
+                            } else {
+                                $('.span-' + ref).text(' (0)');
+                                $('.span-' + ref).css('color', '#' + randomColor);
+                            }
+                        }
+                        opts = {};
+                    }
+                })
+            }
+        }
+
+        // FUNCTION: BỘ LỌC THEO COLL
+        function ajaxGetListFieldAllColl(coll) {
+            $.ajax({
+                url: '/filter-by-coll?nameColl=' + coll + '&offcanvasID=' + coll,
+                method: 'GET',
+                success: resp => {
+                    if (!resp.error) {
+                        $('.list-filter-import').append(resp.data);
+                    }
+                }
+            })
+        }
+
+        // FUNCTION: SHOW BỘ LỌC DYNAMIC
+        function filterDynamicValue(coll) {
+            let appendFilter = '<div class="row"><div class="col-lg-8"><div class="input-group"><input type="text" class="form-control input-search-text input-search-text-' + coll + '" autocomplete="off" placeholder="Tìm kiếm..."><button class="input-group-text btn-filter-dynamic-coll" _coll="' + coll + '"><i class="ti-search"></i></button></div></div>';
+            let filter = '<div class="col-lg-4"><button class="btn btn-outline-secondary me-2" type="button" data-bs-toggle="modal" data-bs-target="#' + coll + 'ID" ><i class="mdi mdi-filter-variant"></i> Bộ lọc</button></div></div>';
+            ajaxGetListFieldAllColl(coll);
+            return {
+                inputSearch: appendFilter + filter,
+            }
+        }
+
+        function checkDataDynamicHistory(resp) {
+            for (let item of resp.data) {
+                if (resp.listHistoryChoice && resp.listHistoryChoice.length) {
+                    resp.listHistoryChoice.map(historyImport => {
+                        if (historyImport.fieldID == item._id || historyImport.nameFieldRef == item.name) {
+                            if (historyImport.dataDynamic.length) {
+                                ajaxFilterDynamicImport(item.ref, historyImport.dataDynamic);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        // FUNCTION: TRẢ VỀ INPUT REF
+        function getInputRef({
+            _id,
+            nameCollChoice,
+            type,
+            countRef,
+            description,
+            name,
+            nameColl,
+            ref,
+            dataEnum,
+            classParent,
+            collIsRefFrom,
+            TYPE_CHOICE_VALUE_REF,
+            dataDynamic
+        }) {
+            let checkClassRefWasShowed = $('.ref-' + ref);
+            if (!checkClassRefWasShowed.length) {
+                const COUNT_CAN_POPULATE = 2;
+                let FIELD_REF = '';
+                if (countRef < COUNT_CAN_POPULATE) {
+                    if (!TYPE_CHOICE_VALUE_REF || TYPE_CHOICE_VALUE_REF == 'static') {
+                        let TYPE_STATIC = '';
+                        let TYPE_DYNAMIC = '';
+                        if (dataDynamic && dataDynamic.length) {
+                            TYPE_DYNAMIC = 'selected';
+                        } else {
+                            TYPE_STATIC = 'selected';
+                        }
+                        let inputSelectChoiceTypePopulate = '<div class = "col-lg-6"><select class="form-select type-choice-preview-ref type-choice-preview-ref-' + ref + '"'
+                        inputSelectChoiceTypePopulate += 'id="" _id="' + _id + '" _ref = "' + ref + '" data-placeholder="Chọn Loại" style="margin-top: -7px;"><option ' + TYPE_DYNAMIC + ' value="dynamic">DYNAMIC</option><option ' + TYPE_STATIC + ' value="static">STATIC</option></select></div>';
+
+                        let icon = '<i class="not-check-all-field far fa-star" _collID = "' + _id + '" style="margin-left: 5px;font-size: 12px;"></i>';
+
+                        FIELD_REF += '<div style="padding-bottom: 0px !important;" class="list-group-item list-group-item-import list-group-item-import-' + _id + ' checkbox checkbox-success"> <div class="row"><div class="col-lg-12"> <div class="row">';
+
+                        let input = '<div class = "col-lg-6"><input _nameCollChoice = "' + nameCollChoice + '"  _dataEnum = "' +
+                            dataEnum + '" _type = "' + type + '"  _countRef ="' + countRef + '" _note="' + description +
+                            '" _refFrom = "' + collIsRefFrom + '" _typeColl ="' + type + '" _coll="' + nameColl + '" _ref="' +
+                            ref + '" id="' + _id + '" type="checkbox" class="item-coll-import-' + nameColl + ' check-field-coll-import ' +
+                            classParent + ' check-field-import-' + _id + ' ref-import-' + ref + '" _value="' + name +
+                            '"><label class="label-export" for="' + _id + '">' + description + icon + '</label><span class="span-' + ref + '"> </span></div>' +
+                            inputSelectChoiceTypePopulate + '</div>';
+                        FIELD_REF += input + ' </div></div></div>';
+                    }
+                }
+
+                return {
+                    FIELD_REF
+                }
+            }
+        }
+
+        const isTrue = val => {
+            return val && val !== '' && val !== undefined && val === 'true';
+        }
+
+        function setHistoryConditionDeleteDataOld(condition) {
+            if (isTrue(condition.delete)) { // XÓA DATA CŨ
+                $('.input-field-type-delete').val('YES');
+
+                if (isTrue(condition.deleteAll)) { // XÓA TẤT CẢ DỮ LIỆU
+                    // console.log("====================XÓA TẤT CẢ DỮ LIỆU====================");
+                    $('.input-field-type-delete-all').val('YES');
+
+                } else { // XÓA VỚI ĐIỀU KIỆN
+                    // console.log("====================XÓA VỚI ĐIỀU KIỆN====================");
+                    $('.input-field-type-delete-all').val('NO');
+                    $(".type-change-data-delete-all[value=" + condition.typeChangeData + "]").prop('checked', true);
+
+                    if (condition.typeChangeData == 'update') { // KIỂM TRA TỒN TẠI VÀ UPDATE
+                        if (isTrue(condition.checkDownloadDataOld)) {
+                            $('.choice-download-data-old').prop('checked', true);
+                        }
+                    } else { // INSERT CÁI MỚI
+                        // console.log("====================INSERT CÁI MỚI 2====================");
+                    }
+                    $('.type-change-data-delete-all:checked').trigger('click');
+                }
+                $('.input-field-type-delete-all').trigger('change');
+
+            } else { // KHÔNG XÓA DATA CŨ
+                $('.input-field-type-delete').val('NO');
+                $(".type-change-data-not-delete-all[value=" + condition.typeChangeData + "]").prop('checked', true);
+
+                if (condition.typeChangeData == 'update') { // KIỂM TRA TỒN TẠI VÀ UPDATE
+                    // console.log("====================KIỂM TRA TỒN TẠI VÀ UPDATE====================");
+
+                } else { // INSERT CÁI MỚI
+                    // console.log("====================INSERT CÁI MỚI====================");
+
+                }
+                $('.type-change-data-not-delete-all:checked').trigger('click');
+            }
+            $('.input-field-type-delete').trigger('change');
+        }
+
+        // FUNCTION: CALL AJAX VỚI FIELD REF
+        let listFieldOfCollOrigin = [];
+        let respOriginImport = {};
+        let conditionDeleteData = {}; // CONDITION STEP DELETE DATA OLD
+
+        function ajaxCallGetFieldImport({
+            nameColl, // Tên COLL
+            type, // Origin = Lần đầu load || Populate = Load từ lần 2 trở đi
+            refFrom, // REF từ COLL nào
+            input,
+            countRefBefore, // Số lượng đã REF
+            fieldID,
+            clear,
+            TYPE_CHOICE_VALUE_REF // DYNAMIC || STATIC
+        }) {
+            $.ajax({
+                url: '/get-info-coll-import?nameColl=' + nameColl + '&isImport=true',
+                method: 'GET',
+                success: resp => {
+                    if (!resp.error) {
+                        let listField = '';
+                        let arrayChoiced = [];
+
+                        if (TYPE_CHOICE_VALUE_REF && TYPE_CHOICE_VALUE_REF == 'dynamic') {
+                            let {
+                                inputSearch
+                            } = filterDynamicValue(resp.collChoice.data.name);
+                            listField += inputSearch;
+                        }
+
+                        for (let item of resp.data) {
+                            let ref = '';
+                            let icon = '';
+                            let inputSelectChoiceTypePopulate = '';
+
+                            let countRef = (type == 'origin') ? 1 : countRefBefore;
+                            let classParent = (type == 'origin') ? "check-field-coll-parent" : "";
+
+                            let collIsRefFrom = refFrom ? refFrom : '';
+                            let name = item.note ? item.note : item.name;
+                            let nameCollChoice = (resp.collChoice && !resp.collChoice.error && resp.collChoice.data.description) ? resp.collChoice.data.description : resp.collChoice.data.name;
+                            let collChoiceID = resp.collChoice.data._id;
+
+                            let dataDynamic = [];
+                            let selectedFieldDynamic = ''; // SELECTED FIELD CHỌN DYNAMIC
+                            if (resp.listHistoryChoice && resp.listHistoryChoice.length && type == 'origin') {
+                                let mark = false;
+                                resp.listHistoryChoice.map(historyImport => {
+                                    if (historyImport.fieldID == item._id || historyImport.nameFieldRef == item.name) {
+                                        mark = true;
+                                        dataDynamic = historyImport.dataDynamic;
+
+                                        if (!arrayChoiced.includes(item._id)) {
+                                            arrayChoiced = [
+                                                ...arrayChoiced,
+                                                item._id
+                                            ];
+                                        }
+                                    }
+                                })
+
+                            } else {
+                                if (type == 'populate') {
+                                    if (respOriginImport.listHistoryChoice && respOriginImport.listHistoryChoice.length) {
+                                        respOriginImport.listHistoryChoice.map(historyImport => {
+                                            if (historyImport.fieldID == item._id || historyImport.nameFieldRef == item.name) {
+                                                arrayChoiced = [
+                                                    ...arrayChoiced,
+                                                    item._id
+                                                ];
+                                            }
+                                        })
+                                    }
+                                }
+                            }
+
+                            let dataEnum = '';
+                            if (item.isStatus) {
+                                dataEnum += item.dataEnum.map(isStatus => isStatus.title);
+                                arrayDataEnum = [
+                                    ...arrayDataEnum,
+                                    {
+                                        _id: item._id,
+                                        dataEnum: item.dataEnum
+                                    }
+                                ]
+                            }
+
+
+
+                            if (item.ref) {
+                                let {
+                                    FIELD_REF
+                                } = getInputRef({
+                                    _id: item._id,
+                                    nameCollChoice,
+                                    type: item.type,
+                                    countRef,
+                                    description: name,
+                                    name: item.name,
+                                    nameColl,
+                                    ref: item.ref,
+                                    collIsRefFrom,
+                                    dataEnum,
+                                    classParent,
+                                    TYPE_CHOICE_VALUE_REF,
+                                    dataDynamic // DYNAMIC || STATIC HISTORY
+                                });
+                                listField += FIELD_REF;
+
+                            } else {
+                                let inputSelectItemOfColl = '';
+
+                                if (countRef > 1 && TYPE_CHOICE_VALUE_REF == 'dynamic') { // CHỌN FIELD REF
+                                    let option = '<option value="">Chọn biến</option>';
+                                    listFieldOfCollOrigin.map(item => {
+                                        let selected = '';
+                                        respOriginImport.listHistoryChoice && respOriginImport.listHistoryChoice.length && respOriginImport.listHistoryChoice.map(history => {
+                                            if (history.variableChoice == item.name) {
+                                                selected = 'selected';
+                                            }
+                                        });
+                                        let name = item.note ? item.note : item.name;
+                                        option += '<option ' + selected + '  value="' + item.name + '">' + item.note + '</option>';
+                                    });
+
+                                    inputSelectItemOfColl = '<div class = "col-lg-6"><select class="form-select field-' + nameColl + '-' + item.name + '-dynamic" data-placeholder="Chọn Loại" style="margin-top: -7px;">' + option + '</select></div>';
+                                }
+
+                                let checked = '';
+                                if (type == 'origin' && resp.listHistoryChoice) {
+                                    resp.listHistoryChoice && resp.listHistoryChoice.length && resp.listHistoryChoice.map(history => {
+                                        if (history.fieldID == item._id && history.isRequire) {
+                                            checked = 'checked';
+                                        }
+                                    });
+                                } else if (respOriginImport.listHistoryChoice) {
+                                    respOriginImport.listHistoryChoice && respOriginImport.listHistoryChoice.length && respOriginImport.listHistoryChoice.map(history => {
+                                        if (history.fieldID == item._id && history.isRequire) {
+                                            checked = 'checked';
+                                        }
+                                    });
+                                }
+
+                                let inputRequire = '<input ' + checked + ' style = "margin-left: 15px;" id="require-' + item._id + '" type="checkbox" class="" _value="' +
+                                    item.name + '"><label class="label-export" for="require-' + item._id + '">Require</label>';
+
+                                listField += '<div style="padding-bottom: 0px !important;" class="list-group-item list-group-item-import list-group-item-import-' + item._id + ' checkbox checkbox-success"> <div class="row"><div class="col-lg-4">';
+                                let input = '<input _nameCollChoice = "' + nameCollChoice + '"  _dataEnum = "' + dataEnum + '" _type = "' +
+                                    item.type + '" _countRef ="' + countRef + '" _note="' + name + '" _refFrom = "' + collIsRefFrom +
+                                    '" _typeColl ="' + type + '" _coll="' + nameColl + '" _ref="' + ref + '" id="' + item._id +
+                                    '" type="checkbox" class="item-coll-import-' + nameColl + ' check-field-coll-import ' + classParent +
+                                    ' check-field-import-' + item._id + ' ref-import-' + ref + '" _value="' + item.name + '"><label class="label-export" for="' +
+                                    item._id + '">' + name + icon + '</label>';
+
+                                listField += input + inputRequire + ' </div>' + inputSelectItemOfColl + '</div></div>';
+                            }
+                        };
+
+                        if (type == 'origin') {
+                            listFieldOfCollOrigin = resp.data.filter(item => !item.ref);
+                            respOriginImport = resp;
+                            conditionDeleteData = resp.listHistoryChoice && resp.listHistoryChoice.length && resp.listHistoryChoice[0].condition;
+
+                            setHistoryConditionDeleteDataOld(conditionDeleteData);
+
+                            $('.totalItem').text(resp.data.length);
+                            $('.list-field-coll-import').empty();
+                            $('.list-field-coll-import').append(listField);
+                        } else {
+                            let dataToAppend = '<ul class= "' + nameColl + ' list-group list-group-flush" style="padding-left: 20px;">' + listField + '</ul>';
+                            $(input).parents('.list-group-item-import-' + fieldID).append(dataToAppend);
+                        }
+                        if (!clear) {
+                            changeCallAjaxGetHistoryImport(arrayChoiced, resp, type);
+                            checkDataDynamicHistory(respOriginImport); // FUNCTION CALL AJAX FIELD REF CHOICE DYNAMIC
+                        }
+                    }
+                }
+            }).done(() => {
+                dragula([document.querySelector('.list-field-coll-import')])
+            });
+            // .done(() => $('.type-choice-preview-ref').select2());
+        }
+
+        // FUNCTION: LOAD FIELD IMPORT ĐẦU TIÊN
+        $(document).on('click', '.setting-excel-preview', function() {
+            $('.list-field-coll-import').empty();
+            ajaxCallGetFieldImport({
+                nameColl: 'testing',
+                type: 'origin',
+            });
+
+            ajaxGetListFieldAllColl('testing');
+            $('.btn-export-excel').removeClass('d-none');
+            // $('.option-choose-export').removeClass('d-none');
+        });
+
+        function changeCallAjaxGetHistoryImport(arrayChoiced, resp) {
+            arrayChoiced && arrayChoiced.length && arrayChoiced.map(item => {
+                $('.check-field-import-' + item).trigger('click')
+            });
+
+            // checkDataDynamicHistory(resp);// FUNCTION CALL AJAX FIELD REF CHOICE DYNAMIC
+        }
+
+        // FUNCTION: CALL AJAX VỚI FIELD REF
+        function changeCheckFieldImport(
+            check, ref, countRefCanPopulate, fieldID, refFrom, input, value, TYPE_CHOICE_VALUE_REF
+        ) {
+            if (check) {
+                if (countRefCanPopulate <= 2) {
+                    if (ref) {
+                        ajaxCallGetFieldImport({
+                            nameColl: ref,
+                            type: 'populate',
+                            input: input,
+                            refFrom: refFrom,
+                            countRefBefore: countRefCanPopulate,
+                            fieldID: fieldID,
+                            TYPE_CHOICE_VALUE_REF
+                        });
+                    }
+                }
+                $(input).addClass('checked');
+            } else {
+                $(input).removeClass('checked');
+
+                if (refFrom) {
+                    let listItem = $('.item-coll-' + refFrom + '.checked');
+                    if (!listItem.length) {
+                        $('.ref-' + refFrom).prop('checked', false);
+                        // $('.' + refFrom).remove();
+                    }
+                }
+
+                if (ref) {
+                    $('.' + ref).remove();
+                }
+            }
+        }
+
+        // FUNCTION: CHECK FIELD IMPORT
+        $(document).on('click', '.check-field-coll-import', function() {
+            let {
+                ref,
+                refFrom,
+                _countRef,
+                value,
+                fieldID,
+                check,
+                countRefCanPopulate
+            } = clickShowField(this);
+
+            let TYPE_CHOICE_VALUE_REF;
+            if (check && ref) {
+                TYPE_CHOICE_VALUE_REF = $('.type-choice-preview-ref-' + ref).val();
+                if (!TYPE_CHOICE_VALUE_REF) {
+                    $(this).prop('checked', false);
+                    return AlertCustom({
+                        title: 'THÔNG BÁO',
+                        message: 'Bạn phải chọn loại Loại Populate',
+                        icon: 'warning'
+                    });
+                }
+            }
+
+            changeCheckFieldImport(check, ref, countRefCanPopulate, fieldID, refFrom, this, value, TYPE_CHOICE_VALUE_REF);
+        });
+
+        function appendListValueRefColl(listValueDynamic) {
+            let listValueDynamicShow = '';
+            let coll;
+
+            listValueDynamic.map(item => {
+                let input = '<div style="padding-bottom: 0px !important; padding-left: 45px;" class="list-group-item list-group-item-import list-group-item-import- checkbox checkbox-success"> <div class="row"><div class="col-lg-8">';
+                input += '<input _variable = "' + item.variable + '" _coll = "' + item.coll + '" id="' + item.value + '" type="checkbox" class="item-coll-import- check-field-coll-import"><label class="label-export" for="' +
+                    item.value + '">' + item.value + '</label>';
+                input += '</div>';
+                listValueDynamicShow += input;
+                coll = item.coll;
+            });
+
+            $('.' + coll).append(listValueDynamicShow);
+        }
+
+        function checkListFieldRefDynamic(coll) {
+            let listFieldRefDynamic = $('.item-coll-import-' + coll);
+            let listField = [];
+            if (listFieldRefDynamic && listFieldRefDynamic.length) {
+                listFieldRefDynamic.each((i, elem) => {
+                    let nameField = $(elem).attr('_value');
+                    listField = [
+                        ...listField,
+                        nameField
+                    ];
+                });
+            }
+            return {
+                listField
+            }
+        }
+
+        $(document).on('click', '.btn-filter-dynamic-coll', function() {
+            let coll = $(this).attr('_coll');
+            opts.keyword = $('.input-search-text-' + coll).val();
+            ajaxFilterDynamicImport(coll);
+        });
+
+        function getListItemChoiceChecked(input) {
+            let listItemID = [];
+            $(input).each((index, elem) => {
+                let name = $(elem).attr('_value');
+                let coll = $(elem).attr('_coll');
+                let type = $(elem).attr('_typeColl');
+                let ref = $(elem).attr('_ref');
+                let refFrom = $(elem).attr('_refFrom');
+                let note = $(elem).attr('_note');
+                let fieldID = $(elem).attr('id');
+                let typeVar = $(elem).attr('_type');
+                let nameCollChoice = $(elem).attr('_nameCollChoice');
+                let isRequire = $('#require-' + fieldID).is(':checked');
+
+                let dataEnum = [];
+                arrayDataEnum && arrayDataEnum.length && arrayDataEnum.map(item => {
+                    if (item._id == fieldID) {
+                        dataEnum = item.dataEnum
+                    }
+                })
+
+                let dataDynamic = [];
+                let variableChoice = '';
+
+                arrayValueDynamicChoice && arrayValueDynamicChoice.length && arrayValueDynamicChoice.filter(item => {
+                    if (item.coll == coll) {
+                        item.dataDynamic && item.dataDynamic && item.dataDynamic.map(value => {
+                            if (value.variable == name) {
+                                variableChoice = $('.field-' + coll + "-" + name + '-dynamic').val();
+                                console.log({
+                                    variableChoice
+                                });
+                                dataDynamic = value.dataDynamic;
+                            }
+                        })
+                    }
+                })
+
+                let object = name;
+                if (type == 'populate') {
+                    object = coll + '.' + name;
+                }
+
+                listItemID = [...listItemID, {
+                    name,
+                    coll,
+                    ref,
+                    refFrom,
+                    note,
+                    fieldID: fieldID,
+                    typeVar,
+                    dataEnum,
+                    nameCollChoice,
+                    dataDynamic,
+                    variableChoice,
+                    isRequire
+                }]
+            });
+
+            return {
+                listItemID
+            }
+        }
+
+        $(document).on('click', '.btn-clear-all-field-choice-import', function() {
+            ajaxCallGetFieldImport({
+                nameColl: 'testing',
+                type: 'origin',
+                clear: 'clearAll'
+            });
+        });
+
+        function getInfoConditionChangeData(optionDeleteOld) {
+            let condition = {};
+            switch (optionDeleteOld) {
+                case 'YES': // CHỌN XÓA DỮ LIỆU CŨ
+                    condition = {
+                        ...condition,
+                        delete: true,
+                    }
+
+                    let optionDeleteAll = $('.input-field-type-delete-all').val();
+                    if (!optionDeleteAll) {
+                        return {
+                            error: true,
+                            msg: 'Bạn phải xóa tất cả hay không'
+                        }
+                    }
+
+                    switch (optionDeleteAll) { // CHỌN XÓA TẤT CẢ DỮ LIỆU
+                        case 'YES':
+                            condition = {
+                                ...condition,
+                                deleteAll: true,
+                                typeChangeData: 'insert'
+                            }
+                            break;
+
+                        case 'NO':
+                            if (isEmptyObject(conditionDeleteImport)) {
+                                return {
+                                    error: true,
+                                    msg: 'Mời bạn chọn điều kiện xóa'
+                                }
+                            }
+
+                            condition = {
+                                ...condition,
+                                deleteAll: false,
+                                conditionDeleteImport
+                            }
+
+                            let typeChangData = $('.type-change-data:checked').val();
+                            if (!typeChangData) {
+                                return {
+                                    error: true,
+                                    msg: 'Mời bạn chọn loại thay đổi dữ liệu'
+                                }
+                            }
+
+                            if (typeChangData == 'update') {
+                                let listFieldPrimaryKey = $('.input-type-change-data-update-delete-all').val();
+                                if (!listFieldPrimaryKey || !listFieldPrimaryKey.length)
+                                    return {
+                                        error: true,
+                                        msg: 'Mời bạn chọn PRIMARY KEY'
+                                    }
+
+                                let checkDownloadDataOld = $('.choice-download-data-old').is(':checked');
+
+                                condition = {
+                                    ...condition,
+                                    typeChangeData: 'update',
+                                    listFieldPrimaryKey,
+                                    checkDownloadDataOld
+                                }
+                            } else {
+                                condition = {
+                                    ...condition,
+                                    typeChangeData: 'insert'
+                                }
+                            }
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    break;
+
+                case 'NO':
+                    condition = {
+                        ...condition,
+                        delete: false,
+                    }
+
+                    let typeChangData = $('.type-change-data:checked').val();
+                    if (!typeChangData) {
+                        return {
+                            error: true,
+                            msg: 'Mời bạn chọn loại thay đổi dữ liệu'
+                        }
+                    }
+
+                    if (typeChangData == 'update') {
+                        let listFieldPrimaryKey = $('.input-type-change-data-update-not-delete-all').val();
+
+                        if (!listFieldPrimaryKey || !listFieldPrimaryKey.length)
+                            return {
+                                error: true,
+                                msg: 'Mời bạn chọn PRIMARY KEY'
+                            }
+
+                        condition = {
+                            ...condition,
+                            typeChangeData: 'update',
+                            listFieldPrimaryKey
+                        }
+                    } else {
+                        condition = {
+                            ...condition,
+                            typeChangeData: 'insert'
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return {
+                error: false,
+                condition
+            }
+        }
+
+        $(document).on('click', '.btn-setting-excel-import', function() {
+            $('.option-choose-export').addClass('d-none');
+            let {
+                listItemID
+            } = getListItemChoiceChecked('.check-field-coll-import.checked');
+
+            if (!listItemID || !listItemID.length) {
+                return AlertCustom({
+                    title: 'THÔNG BÁO',
+                    message: 'Mời bạn chọn field IMPORT',
+                    icon: 'warning'
+                });
+            }
+
+            let optionDeleteDataOld = $('.input-field-type-delete').val();
+            if (!optionDeleteDataOld) {
+                return AlertCustom({
+                    title: 'THÔNG BÁO',
+                    message: 'Bạn phải chọn có xóa dữ liệu cũ hay không',
+                    icon: 'warning'
+                });
+            }
+
+            let condition = getInfoConditionChangeData(optionDeleteDataOld);
+            if (condition.error) {
+                return AlertCustom({
+                    title: 'THÔNG BÁO',
+                    message: condition.msg,
+                    icon: 'warning'
+                });
+            }
+
+            $.ajax({
+                url: '/testing/list-testing-import-setting',
+                method: 'POST',
+                data: {
+                    listItemImport: listItemID,
+                    condition: condition.condition
+                },
+                success: resp => {
+                    if (!resp.error) {
+                        return AlertCustom({
+                            title: 'THÔNG BÁO',
+                            message: 'Bạn đã thêm cấu hình FILE IMPORT thành công',
+                            icon: 'success'
+                        });
+                    } else {
+                        return AlertCustom({
+                            title: 'THÔNG BÁO',
+                            message: resp.message,
+                            icon: 'success'
+                        });
+                    }
+                }
+            })
+        });
+
+        $(document).on('click', '.type-choice-preview-ref', function() {
+            let type = $(this).val();
+            let collID = $(this).attr('_id');
+
+            let checked = $('.check-field-import-' + collID).is(':checked');
+            if (checked) {
+                $('.check-field-import-' + collID).trigger('click');
+            }
+        });
+
+        $(document).on('change', '.input-field-type-delete', function() {
+            let TYPE_CHOICE = $(this).val();
+            if (TYPE_CHOICE == 'YES') {
+                $('.delete-all-record-old').removeClass('d-none');
+                $('.not-delete-record-old').addClass('d-none');
+            } else if (TYPE_CHOICE == 'NO') {
+                $('.delete-all-record-old').addClass('d-none');
+                $('.not-delete-record-old').removeClass('d-none');
+                $('.type-change-data-import').removeClass('d-none');
+            } else {
+                $('.delete-all-record-old').addClass('d-none');
+                $('.not-delete-record-old').addClass('d-none');
+                $('.type-change-data-import').addClass('d-none');
+            }
+        });
+
+        $(document).on('change', '.input-field-type-delete-all', function() {
+            let TYPE_CHOICE = $(this).val();
+            if (TYPE_CHOICE == 'YES') {
+                $('.type-change-data-import-delete-all').removeClass('d-none');
+                $('.type-change-data-import').addClass('d-none');
+            } else if (TYPE_CHOICE == 'NO') {
+                $('.type-change-data-import-delete-all').addClass('d-none');
+                $('.type-change-data-import').removeClass('d-none');
+            } else {
+                $('.type-change-data-import-delete-all').addClass('d-none');
+                $('.type-change-data-import').addClass('d-none');
+            }
+        });
+
+        $(document).on('click', '.type-change-data', function() {
+            let value = $(this).val();
+            if (value == 'update') {
+                $('.input-type-change-data-update').empty();
+                let option = '';
+                respOriginImport.data && respOriginImport.data.length && respOriginImport.data.map(item => {
+                    let name = item.note ? item.note : item.name;
+                    option += '<option value="' + item.name + '">' + name + '</option>';
+                });
+                $('.input-type-change-data-update').append(option);
+                // $('.input-type-change-data-update').select2({
+                //     dropdownParent: $('.list-type-import'),
+                // })
+                $('.type-change-data-update').removeClass('d-none');
+                $('.download-old-data-with-condition').removeClass('d-none');
+            } else {
+                $('.type-change-data-update').addClass('d-none');
+                $('.download-old-data-with-condition').addClass('d-none');
+            }
+        });
+
+        // ==========================SAVE IMPORT EXCEL===============================
+
+        $(document).on('click', '.btn-save-import-excel', function() {
+            const file = $('#file__excel').prop('files')[0];
+            const fd = new FormData();
+            fd.append('file', file);
+
+            if (!file) {
+                return AlertCustom({
+                    title: 'THÔNG BÁO',
+                    message: 'Mời bạn chọn FILE Import',
+                    icon: 'warning'
+                });
+            }
+
+            $('.loading-file-excel').removeClass('d-none');
+            $('.file-excel-upload-import').addClass('d-none');
+            $(this).attr('disabled', true);
+
+            $.ajax({
+                type: "POST",
+                url: "/testing/create-testing-import-excel",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(resp => {
+                if (resp.error) {
+                    AlertCustom({
+                        title: 'THÔNG BÁO',
+                        message: resp.message,
+                        icon: 'error'
+                    });
+                } else {
+                    AlertCustom({
+                        title: 'THÔNG BÁO',
+                        message: 'Bạn đã thêm thành công',
+                        icon: 'success'
+                    });
+                    setTimeout(location.reload(), 700);
+                }
+
+                $('.loading-file-excel').addClass('d-none');
+                $('.file-excel-upload-import').removeClass('d-none');
+                $(this).attr('disabled', false);
+
+            }).fail(err => AlertCustom({
+                title: 'THÔNG BÁO',
+                message: err.message,
+                icon: 'error'
+            }))
+
+        });
+
+
+
+    })
+</script>

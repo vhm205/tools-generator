@@ -1,0 +1,153 @@
+<script>
+	$(document).ready(function () {
+
+		if($('#inputSelectRole').length){
+			new SlimSelect({
+				select: '#inputSelectRole',
+				onChange: () => $('#btnConfirmAddRoles').prop('disabled', false)
+			})
+		}
+
+		if($('#inputSelectScope').length && $('#inputSelectApi').length){
+
+			const inputSelectPermissions = new SlimSelect({
+				select: '#inputSelectScope',
+			})
+
+			new SlimSelect({
+				select: '#inputSelectApi',
+				onChange: changeApi
+			})
+
+			function changeApi(info) {
+				const apiID = info.value;
+				$('.group-permission').removeClass('d-none');
+
+				$.ajax({
+					type: 'GET',
+					url: `<%= CF_ROUTINGS_API.LIST_SCOPE_BY_API %>?api=${apiID}`,
+				}).done(resp => {
+					const { error, message, data } = resp;
+
+					if(error){
+						AlertCustom({ title: 'Không thể lây danh sách scope trong API', icon: 'warning' })
+					}
+
+					const displayData = [];
+
+					data.map(scope => {
+						displayData[displayData.length] = {
+							value: scope._id,
+							text: scope.name
+						}
+					})
+
+					inputSelectPermissions.setData(displayData);
+					$('#btnConfirmAddPermissions').prop('disabled', false);
+				}).fail(err => AlertCustom({ title: err.message, icon: 'error' }))
+			}
+		}
+
+		$('.btn-show-modal-add-permission, .btn-show-modal-add-role').on('click', function () {
+			const userID 	= $(this).attr('_userID');
+			const hasClass 	= $(this).hasClass('btn-show-modal-add-role');
+			$('.input-user-id').val(userID);
+
+			if(hasClass){
+				$('.modal-add-role').modal('show');
+			} else{
+				$('.modal-add-permission').modal('show');
+			}
+		});
+
+		$('#btnConfirmAddRoles').on('click', function () {
+			const roleID  = $('#inputSelectRole').val();
+			const usersID = $('.input-user-id').val();
+
+			$.ajax({
+				type: 'POST',
+				url: `<%= CF_ROUTINGS_ROLE.ADD_ROLE_TO_USER %>`,
+				data: { roleID, usersID: [usersID] },
+			}).done(resp => {
+				const { error, message } = resp;
+
+				if(error){
+					return AlertCustom({ title: message, icon: 'warning' });
+				}
+
+				$('.modal-add-role').modal('hide');
+				AlertCustom({ title: 'Thêm role thành công', icon: 'success' });
+			}).fail(err => AlertCustom({ title: err.message, icon: 'error' }))
+		});
+
+		$('#btnConfirmAddPermissions').on('click', function () {
+			const userID   = $('.input-user-id').val();
+			const scopesID = $('#inputSelectScope').val();
+
+			if(!userID){
+				return AlertCustom({ title: 'ID user không tồn tại', icon: 'warning' });
+			}
+
+			if(!scopesID || !scopesID.length){
+				return AlertCustom({ title: 'Bạn cần chọn quyền gán cho user', icon: 'warning' });
+			}
+
+			$.ajax({
+				type: 'POST',
+				url: `<%= CF_ROUTINGS_ROLE.ADD_PERMISSION_DIRECTLY %>`,
+				data: { userID, scopesID },
+			}).done(resp => {
+				const { error, message } = resp;
+			
+				if(error){
+					return AlertCustom({ title: message, icon: 'warning' });
+				}
+
+				$('.modal-add-permission').modal('hide');
+				AlertCustom({ title: 'Thêm quyền thành công', icon: 'success' });
+			}).fail(err => AlertCustom({ title: err.message, icon: 'error' }))
+		});
+
+		$('.btn-remove-user').on('click', async function () {
+			const userID = $(this).attr('_userID');
+
+			await ConfirmCustomAjax({
+                title: 'Bạn có chắc chắn muốn xoá USER?',
+                icon: 'question',
+                cb: result => {
+					if(!result || !result.value) return;
+
+                    const {
+                        error,
+                        message
+                    } = result.value;
+
+                    if (error) {
+                        return AlertCustom({
+                            title: message,
+                            icon: 'warning'
+                        });
+                    }
+
+                    $(this).closest('tr').remove();
+                    AlertCustom({
+                        title: 'Xoá USER thành công',
+                        icon: 'success'
+                    });
+                },
+                preConfirm: () => {
+                    if(!userID){
+						return AlertCustom({ title: 'ID user không tồn tại', icon: 'warning' });
+					}
+
+                    return $.ajax({
+                        type: "GET",
+                        url: `<%= CF_ROUTINGS_ROLE.DELETE_USER %>?userID=${userID}`,
+                    })
+                }
+            });
+
+		});
+		
+	});
+</script>

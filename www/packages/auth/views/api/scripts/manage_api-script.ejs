@@ -1,0 +1,173 @@
+<script>
+	$(document).ready(function () {
+		// $('.table-data').DataTable({
+		// 	'iDisplayLength': 100,
+		// 	...languageDataTable
+		// });
+
+
+		// -------------------- BEGIN SCRIPT API-IDENTIFIER ---------------------
+
+		$('.btn-show-modal-create-api').on('click', function () {
+			$('.modal-create-api').modal('show');
+		});
+
+		$('#btnConfirmCreateApi').on('click', function () {
+			const name 		= $('#inputApiName').val().trim();
+			const endpoint 	= $('#inputApiEndpoint').val().trim();
+
+			$.ajax({
+				type: 'POST',
+				url: `<%= CF_ROUTINGS_API.ADD_API %>`,
+				data: { name, endpoint },
+			}).done(resp => {
+				const { error, message } = resp;
+
+				if(error){
+					return AlertCustom({ title: message, icon: 'warning' });
+				}
+
+				$('.modal-create-api').modal('hide');
+
+				AlertCustom({ title: 'Tạo thành công', icon: 'success' });
+				setTimeout(() => location.reload(), 1000);
+			})
+			.fail(err => AlertCustom({ title: err.message, icon: 'error' }))
+		});
+
+		$('.btn-remove-api').on('click', async function () {
+			const apiID = $(this).attr('_apiID');
+
+			await ConfirmCustomAjax({
+                title: 'Bạn có chắc chắn muốn xoá API?',
+                icon: 'question',
+                cb: result => {
+                    const {
+                        error,
+                        message
+                    } = result.value;
+
+                    if (error) {
+                        return AlertCustom({
+                            title: message,
+                            icon: 'warning'
+                        });
+                    }
+
+                    $(this).closest('tr').remove();
+                    AlertCustom({
+                        title: 'Xoá API thành công',
+                        icon: 'success'
+                    });
+                },
+                preConfirm: () => {
+                    if(!apiID){
+						return AlertCustom({ title: 'ID api không tồn tại', icon: 'warning' });
+					}
+
+                    return $.ajax({
+                        type: "GET",
+                        url: `<%= CF_ROUTINGS_API.DELETE_API %>?api=${apiID}`,
+                    })
+                }
+            });
+
+		});
+
+
+		// -------------------- END SCRIPT API-IDENTIFIER ---------------------
+
+
+
+		// -------------------- BEGIN SCRIPT DETAIL-API ---------------------
+
+
+		$('#btnSaveApi').on('click', function () {
+			const apiID = $(this).attr('_apiID');
+			const name 	= $('#inputApiName').val().trim();
+
+			$.ajax({
+				type: 'POST',
+				url: `<%= CF_ROUTINGS_API.UPDATE_API %>`,
+				data: { apiID, name },
+			}).done(resp => {
+				const { error, message } = resp;
+			
+				if(error){
+					return AlertCustom({ title: message, icon: 'warning' });
+				}
+
+				AlertCustom({ title: 'Cập nhật thành công', icon: 'success' });
+			})
+			.fail(err => AlertCustom({ title: err.message, icon: 'error' }))
+		});
+
+		$('#btnAddScope').on('click', function () {
+			const apiID			= $(this).attr('_apiID');
+			const name 			= $('#inputScopeName').val().trim();
+			const description 	= $('#inputScopeDescription').val().trim();
+
+			$.ajax({
+				type: 'POST',
+				url: `<%= CF_ROUTINGS_API.ADD_SCOPE %>`,
+				data: { apiID, name, description },
+			}).done(resp => {
+				const { error, message } = resp;
+			
+				if(error){
+					return AlertCustom({ title: message, icon: 'warning' });
+				}
+			
+				$('#inputScopeName').val('');
+				$('#inputScopeDescription').val('');
+
+				AlertCustom({ title: 'Thêm thành công', icon: 'success' });
+				setTimeout(() => location.reload(), 1000);
+			}).fail(err => toastr.error(err.message, 'THÔNG BÁO'))
+		});
+
+		$('.btn-remove-api-scope').on('click', async function () {
+			const scopeAPI = $(this).attr('_scopeAPI');
+
+			await ConfirmCustomAjax({
+                title: 'Bạn có chắc chắn muốn xoá SCOPE?',
+                icon: 'question',
+                cb: result => {
+                    const {
+                        error,
+                        message
+                    } = result.value;
+
+                    if (error) {
+                        return AlertCustom({
+                            title: message,
+                            icon: 'warning'
+                        });
+                    }
+
+                    $(this).closest('tr').remove();
+                    AlertCustom({
+                        title: 'Xoá SCOPE thành công',
+                        icon: 'success'
+                    });
+                },
+                preConfirm: () => {
+                    if(!scopeAPI){
+						return AlertCustom({ title: 'ID scope không tồn tại', icon: 'warning' });
+					}
+
+                    return $.ajax({
+                        type: "GET",
+                        url: `<%= CF_ROUTINGS_API.DELETE_SCOPE %>?scopeID=${scopeAPI}`,
+                    })
+                }
+            });
+
+		});
+
+
+		// -------------------- END SCRIPT DETAIL-API ---------------------
+
+
+	});
+</script>

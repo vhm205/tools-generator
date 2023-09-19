@@ -1,0 +1,270 @@
+<style>
+	.modal-update-user .modal-dialog{
+		width: 300px;
+	}
+	.select2-dropdown{
+		z-index: 1075 !important;
+	}
+</style>
+
+<div class="content-page">
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12">
+                   <div class="page-title-box">
+                      <h4 class="page-title">Role Base Access Control</h4>
+                      <ol class="breadcrumb">
+                         <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
+                         <li class="breadcrumb-item active">RBAC</li>
+                      </ol>
+                   </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card m-b-20 px-5">
+						<div class="card-header">
+							<a href="/admin/roles" class="card-title">
+								<i class="far fa-arrow-alt-circle-left"></i>
+								Back to Roles
+							</a>
+							<h2> <%= infoRole.name %> </h2>
+							<p>
+								Role ID: <%= infoRole._id %>
+							</p>
+						</div>
+
+                        <div class="card-body">
+
+							<!-- Nav tabs -->
+							<ul class="nav nav-tabs" role="tablist">
+								<li class="nav-item">
+									<a class="nav-link active" data-bs-toggle="tab" href="#role-pane" role="tab" aria-selected="true">Role</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" data-bs-toggle="tab" href="#permission-pane" role="tab" aria-selected="false">Permissions</a>
+								</li>                                                
+								<li class="nav-item">
+									<a class="nav-link" data-bs-toggle="tab" href="#user-pane" role="tab" aria-selected="false">Users</a>
+								</li>
+							</ul>
+
+							<!-- Tab panes -->
+							<div class="tab-content">
+								<div class="tab-pane p-3 active" id="role-pane" role="tabpanel">
+									
+									<div class="col-12 col-sm-6">
+										<div class="mb-3">
+                                            <label class="form-label" for="inputRoleName">
+												Name <span class="text-danger">*</span>
+											</label>
+                                            <input type="email" class="form-control" id="inputRoleName" aria-describedby="emailHelp" placeholder="Tên" value="<%= infoRole.name %>">
+                                            <!-- <small class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label" for="inputRoleDescription">
+												Description <span class="text-danger">*</span>
+											</label>
+                                            <input type="text" class="form-control" id="inputRoleDescription" placeholder="Mô tả" value="<%= infoRole.description %>">
+                                        </div>
+										<button class="btn btn-primary px-4" id="btnSaveRole" _roleID="<%= infoRole._id %>">Save</button>
+
+										<!-- <div class="form-floating mb-3">
+											<input type="text" class="form-control" id="inputRoleName" placeholder="Role name" value="asdasd">
+											<label for="floatingInput">Tên</label>
+										</div>
+										<div class="form-floating mb-3">
+											<input type="text" class="form-control" id="inputRoleDescription" placeholder="Description">
+											<label for="floatingPassword">Mô tả</label>
+										</div> -->
+									</div>
+
+								</div>
+								<div class="tab-pane p-3" id="permission-pane" role="tabpanel">
+
+									<div class="d-flex justify-content-end">
+										<button class="btn btn-primary px-4 btn-show-modal-add-permission">
+											<i class="fas fa-plus-circle me-1"></i>
+											Add Permissions
+										</button>
+									</div>
+									
+									<table class="table table-data table-striped mt-4">
+										<thead>
+											<tr>
+												<th>STT</th>
+												<th>Permission</th>
+												<th>Description</th>
+												<th>API</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											<% listPermissions && listPermissions.forEach((permission, index) => { %>
+												<% if (permission.scope) { %>
+													<tr>
+														<td>
+															<%= index + 1 %>
+														</td>
+														<td>
+															<i> <%= permission.scope.name %> </i>
+														</td>
+														<td>
+															<%= permission.scope.description %>
+														</td>
+														<td>
+															<%= permission.scope.api && permission.scope.api.name %>
+														</td>
+														<td>
+															<div class="dropdown d-inline-block">
+																<a class="dropdown-toggle arrow-none" id="dLabel-<%= index %>" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+																	<i class="las la-ellipsis-v font-20 text-muted"></i>
+																</a>
+																<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dLabel-<%= index %>">
+																	<a class="dropdown-item text-danger btn-remove-permission" href="javascript:void(0)" _permissionID="<%= permission._id %>">
+																		<!-- <i class="fas fa-trash me-1"></i> -->
+																		Delete
+																	</a>
+																</div>
+															</div>
+														</td>
+													</tr>
+												<% } %>
+											<% }) %>
+										</tbody>
+									</table>
+
+
+								</div>                                                
+								<div class="tab-pane p-3" id="user-pane" role="tabpanel">
+									
+									<div class="d-flex justify-content-end">
+										<button class="btn btn-primary px-4 btn-show-modal-add-user">
+											<i class="fas fa-plus-circle me-1"></i>
+											Add Users
+										</button>
+									</div>
+									
+									<table class="table table-data table-striped mt-4">
+										<thead>
+											<tr>
+												<th>STT</th>
+												<th>User</th>
+												<th>Email</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											<% listUserByRole.length && listUserByRole.forEach((user, index) => { %>
+												<tr>
+													<td>
+														<%= index + 1 %>
+													</td>
+													<td>
+														<i> <%= user.username %> </i>
+													</td>
+													<td>
+														<%= user.email %>
+													</td>
+													<td>
+														<div class="dropdown d-inline-block">
+															<a class="dropdown-toggle arrow-none" id="dLabel-<%= index %>" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+																<i class="las la-ellipsis-v font-20 text-muted"></i>
+															</a>
+															<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dLabel-<%= index %>">
+																<a class="dropdown-item text-danger btn-remove-user-by-role" href="javascript:void(0)" _roleID="<%= infoRole._id %>" _userID="<%= user._id %>">
+																	<!-- <i class="fas fa-trash me-1"></i> -->
+																	Delete
+																</a>
+															</div>
+														</div>
+													</td>
+												</tr>
+											<% }) %>
+										</tbody>
+									</table>
+
+
+								</div>
+							</div>   
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+			<!-- END ROW -->
+        </div>
+    </div>
+</div>
+
+
+<!-- POPUP ADD PERMISSION -->
+<div class="modal fade bs-example-modal-sm modal-add-permission" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+			<div class="modal-header">
+				<h6 class="modal-title">Add Permissions</h6>
+			</div>
+            <div class="card-body">
+				
+				<div class="form-group">
+					<select class="slim-select" id="inputSelectApi">
+						<option data-placeholder="true">Select API</option>
+						<% listApi.length && listApi.forEach(api => { %>
+							<option value="<%= api._id %>">
+								<%= api.name %> - <%= api.endpoint %>
+							</option>
+						<% }) %>
+					</select>
+				</div>
+
+				<div class="form-group d-none group-permission">
+					<select class="slim-select" id="inputSelectScope" multiple>
+						<option data-placeholder="true">Select Permission</option>
+					</select>
+
+					<div class="checkbox checkbox-primary mt-3">
+						<input id="cbSelectAllScope" type="checkbox">
+						<label for="cbSelectAllScope">
+							Chọn tất cả
+						</label>
+					</div>
+				</div>
+
+				<div class="d-flex justify-content-end">
+					<button type="button" class="btn btn-success waves-effect waves-light mr-1" disabled id="btnConfirmAddPermissions" _roleID="<%= infoRole._id %>">
+						Add Permissions
+					</button>
+				</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- POPUP ADD USERS -->
+<div class="modal fade bs-example-modal-sm modal-add-user" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+			<div class="modal-header">
+				<h6 class="modal-title">Add Users</h6>
+			</div>
+            <div class="card-body">
+
+				<div class="form-group">
+					<!-- <label for="">Assign ADMIN role to users</label> -->
+					<select class="slim-select" id="inputSelectUsers" multiple>
+						<option data-placeholder="true">Select Users</option>
+					</select>
+				</div>
+
+				<div class="d-flex justify-content-end">
+					<button type="button" class="btn btn-success waves-effect waves-light mr-1" disabled id="btnConfirmAddUsers" _roleID="<%= infoRole._id %>">
+						Add Users
+					</button>
+				</div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,1679 @@
+<script>
+	$(document).ready(function () {
+
+		dragula([document.querySelector('#repeaterList')]);
+
+		// -------------- GENERATE PACKAGE --------------
+
+		$(".select2").select2({ width:"100%" });
+
+		let urlParams = new URLSearchParams(location.search);
+        let collParam = urlParams.get('coll');
+
+		if(collParam){
+			$('.sc-select-collection').val(collParam).trigger('change');
+			$('.btn-delete-package').removeClass('d-none');
+		} else{
+			$('.btn-delete-package').addClass('d-none');
+		}
+
+		const SwalMixin = (title, icon) => {
+			return Swal.mixin({
+				toast: true,
+				position: 'top',
+				showConfirmButton: false,
+				timer: 1500,
+				// timerProgressBar: true,
+				didOpen: (toast) => {
+					toast.addEventListener('mouseenter', Swal.stopTimer)
+					toast.addEventListener('mouseleave', Swal.resumeTimer)
+				}
+			}).fire({ icon, title })
+		}
+
+		$(document).on('change', '.input-field-type', function () {
+			const tid 			= $(this).closest('.template-field').attr('__tid');
+			const templateField = $(`.template-field[__tid=${tid}]`);
+			const fieldType 	= templateField.find('.input-field-type').val();
+			templateField.find('.col-field-type').addClass('d-none');
+
+			switch (fieldType) {
+				case "text":
+					templateField.find('.col-field-type-string').removeClass('d-none');
+					break;
+				case "number":
+					templateField.find('.col-field-type-number').removeClass('d-none');
+					break;
+				case "boolean":
+					templateField.find('.col-field-type-boolean').removeClass('d-none');
+					break;
+				case "date":
+					templateField.find('.col-field-type-date').removeClass('d-none');
+					break;
+				case "object":
+					templateField.find('.col-field-type-object').removeClass('d-none');
+					break;
+				case "array":
+					templateField.find('.col-field-type-array').removeClass('d-none');
+					break;
+				default:
+					break;
+			}
+		});
+
+		$(document).on('change', '.input-field-is-enum', function () {
+			const tid 			= $(this).closest('.template-field').attr('__tid');
+			const templateField = $(`.template-field[__tid=${tid}]`);
+			const fieldType 	= templateField.find('.input-field-type').val();
+
+			switch (fieldType) {
+				case "text":
+					templateField.find('.col-field-type-string .wrapper-field-enum').toggleClass('d-none');
+					break;
+				case "number":
+					templateField.find('.col-field-type-number .wrapper-field-enum').toggleClass('d-none');
+					break;
+				default:
+					break;
+			}
+		});
+
+		$(document).on('change', '.input-field-is-image', function () {
+			const isChecked		= $(this).is(':checked');
+			const tid 			= $(this).closest('.template-field').attr('__tid');
+			const templateField = $(`.template-field[__tid=${tid}]`);
+			const fieldType 	= templateField.find('.input-field-type').val();
+
+			if(isChecked){
+				templateField.find('.col-field-type-object .input-field-follow-by').addClass('d-none');
+			} else{
+				templateField.find('.col-field-type-object .input-field-follow-by').removeClass('d-none');
+			}
+
+			switch (fieldType) {
+				case "object":
+					templateField.find('.col-field-type-object .input-field-type-image').toggleClass('d-none');
+					templateField.find('.col-field-type-object .input-field-file-type').toggleClass('d-none');
+					break;
+				case "array":
+					templateField.find('.col-field-type-array .input-field-type-upload').toggleClass('d-none');
+					templateField.find('.col-field-type-array .input-field-table-sub').toggleClass('d-none');
+					break;
+				default:
+					break;
+			}
+		});
+
+		$(document).on('change', '.input-field-type-upload', function () {
+			const value 		= $(this).val();
+			const tid 			= $(this).closest('.template-field').attr('__tid');
+			const templateField = $(`.template-field[__tid=${tid}]`);
+			const fieldType 	= templateField.find('.input-field-type').val();
+
+			if(value === '1'){
+				templateField.find('.col-field-type-array .input-field-file-type').removeClass('d-none');
+			} else{
+				templateField.find('.col-field-type-array .input-field-file-type').addClass('d-none');
+			}
+		});
+
+		$(document).on('change', '.input-field-type-object, .input-field-type-array', function () {
+			const tid 			= $(this).closest('.template-field').attr('__tid');
+			const templateField = $(`.template-field[__tid=${tid}]`);
+			const fieldType 	= templateField.find('.input-field-type').val();
+			const value 		= $(this).val();
+
+			switch (fieldType) {
+				case "object":
+					templateField.find('.col-field-type-object .input-field-reference-show').toggleClass('d-none');
+					templateField.find('.col-field-type-object .input-field-follow-by').toggleClass('d-none');
+					break;
+				case "array":
+					templateField.find('.col-field-type-array .input-field-reference-show').toggleClass('d-none');
+					templateField.find('.col-field-type-array .input-field-table-sub').toggleClass('d-none');
+					break;
+				default:
+					break;
+			}
+		});
+
+		$(document).on('change', '.input-field-insert-update-from', function () {
+			const isChecked 	= $(this).is(':checked');
+			const tid 			= $(this).closest('.template-field').attr('__tid');
+			const templateField = $(`.template-field[__tid=${tid}]`);
+
+			templateField.find('.col-field-type-object .wrap-button-get-field').toggleClass('d-none');
+		});
+
+		$(document).on('mouseover', '.col-first-template', function () {
+			$(this).find('.popper-note').removeClass('d-none');
+		});
+
+		$(document).on('mouseout', '.col-first-template', function () {
+			$(this).find('.popper-note').addClass('d-none');
+		});
+
+		$(document).on('click', '.btn-remove-field-enum', function () {
+			$(this).closest('.row-field-enum').remove();
+		});
+
+		$(document).on('click', '.btn-remove-condition-field', function () {
+			const tid 			= $(this).closest('.template-field').attr('__tid');
+			const templateField = $(`.template-field[__tid=${tid}]`);
+			const modal			= templateField.find(`#modalCreateCondition_${tid}`);
+
+			$(this).closest('.row-condition-field').remove();
+
+			modal.find('.wrapper-condition-field .row-condition-field').each((i, elem) => {
+				if(i === 0) $(elem).find('.line-condition').remove();
+			})
+		});
+
+		$(document).on('click', '.btn-add-field-enum', function () {
+			const tid 				= $(this).closest('.template-field').attr('__tid');
+			const templateField 	= $(`.template-field[__tid=${tid}]`);
+			const fieldType 		= templateField.find('.input-field-type').val();
+			const templateFieldEnum = $('.row-field-enum.d-none').clone().removeClass('d-none');
+
+			switch (fieldType) {
+				case "text":
+					templateField.find('.col-field-type-string .row-field-enum:not(.d-none) .btn-add-field-enum')
+						.toggleClass('btn-add-field-enum btn-remove-field-enum')
+						.addClass('active btn-danger');
+					templateField.find('.col-field-type-string .wrapper-field-enum').append(templateFieldEnum);
+					break;
+				case "number":
+					templateField.find('.col-field-type-number .row-field-enum:not(.d-none) .btn-add-field-enum')
+						.toggleClass('btn-add-field-enum btn-remove-field-enum')
+						.addClass('active btn-danger');
+					templateField.find('.col-field-type-number .wrapper-field-enum').append(templateFieldEnum);
+					break;
+				default:
+					break;
+			}
+		});
+
+		$(document).on('click', '.btn-add-condition-field', function () {
+			const tid 						= $(this).closest('.template-field').attr('__tid');
+			const templateField 			= $(`.template-field[__tid=${tid}]`);
+			const modal						= templateField.find(`#modalCreateCondition_${tid}`);
+			const fieldName					= templateField.find('.input-field-name').val();
+			const fieldType					= templateField.find('.input-field-type').val();
+			const templateConditionField 	= $('.row-condition-field.d-none').clone().removeClass('d-none');
+			templateConditionField.find('.input-field-from-field').val(fieldName);
+
+			const isSeparateCondition = modal.find('.input-field-is-separate-condition').is(':checked');
+			if(isSeparateCondition) {
+				templateConditionField.find('.line-condition').addClass('d-none');
+				templateConditionField.find('.row-message').removeClass('d-none');
+			}
+
+			if(fieldType === 'date') {
+				templateConditionField.find('.label-input-expr').removeClass('d-none');
+			}
+
+			modal.find('.row-condition-field:not(.d-none) .btn-add-condition-field')
+				.toggleClass('btn-add-condition-field btn-remove-condition-field')
+				.addClass('active btn-danger');
+
+			modal.find('.wrapper-condition-field').append(templateConditionField);
+		});
+
+		$(document).on('change', '.input-field-is-separate-condition', function () {
+			const isChecked			= $(this).is(':checked');
+			const tid 				= $(this).closest('.template-field').attr('__tid');
+			const templateField 	= $(`.template-field[__tid=${tid}]`);
+			const modal				= templateField.find(`#modalCreateCondition_${tid}`);
+
+			if(isChecked) {
+				modal.find('.input-message-response').attr('disabled', true);
+				modal.find('.wrapper-condition-field .row-condition-field .row-message').removeClass('d-none');
+				modal.find('.wrapper-condition-field .row-condition-field:not(:first) .line-condition').addClass('d-none');
+			} else{
+				modal.find('.input-message-response').attr('disabled', false);
+				modal.find('.wrapper-condition-field .row-condition-field .row-message').addClass('d-none');
+				modal.find('.wrapper-condition-field .row-condition-field:not(:first) .line-condition').removeClass('d-none');
+			}
+		});
+
+		$('.btn-add-field').on('click', function () {
+			const tid = randomStringAndNumberFixLengthCode(15);
+			const templateField = $('.template-field.d-none')
+				.clone()
+				.removeClass('d-none')
+				.attr('__tid', tid);
+
+			templateField.find('.modal-set-condition-from-field').attr('id', `modalCreateCondition_${tid}`);
+
+			$(`div[data-repeater-list="collection"]`).append(templateField);
+		});
+
+		!collParam && $('.btn-add-field').trigger('click');
+
+		$(document).on('change', '.input-field-is-show-list', function() {
+			let check  = $(this).is(':checked');
+			if (check) {
+				$(this).parents('.form-check').find('.input-field-width').show();
+			} else {
+				$(this).parents('.form-check').find('.input-field-width').hide();
+			}
+		});
+
+		$(document).on('change', '.input-field-width', function() {
+			let value = $(this).val();
+
+			if (value.length) {
+				$(this).addClass('active');
+			} else {
+				$(this).removeClass('active');
+			}
+		});
+
+		$(document).on('change', '.input-field-is-compare', function() {
+			let isChecked = $(this).is(':checked');
+			const tid 			= $(this).closest('.template-field').attr('__tid');
+			const templateField = $(`.template-field[__tid=${tid}]`);
+			const fieldName		= templateField.find('.input-field-name').val();
+			const fieldType		= templateField.find('.input-field-type').val();
+
+			if(!fieldName) {
+				return Swal.fire('Bạn cần nhập tên field', '', 'warning');
+			}
+			
+			if(isChecked){
+				templateField.find(`#modalCreateCondition_${tid}`).modal('show');
+				const modal		= templateField.find(`#modalCreateCondition_${tid}`);
+				const wrapper	= modal.find('.wrapper-condition-field');
+
+				if(wrapper.html().trim()) return;
+
+				const templateConditionField = $('.row-condition-field.d-none').clone().removeClass('d-none');
+				templateConditionField.find('.input-field-from-field').val(fieldName);
+				templateConditionField.find('.line-condition').remove();
+
+				if(fieldType === 'date') {
+					templateConditionField.find('.label-input-expr').removeClass('d-none');
+				}
+
+				modal.find('.row-condition-field:not(.d-none) .btn-add-condition-field')
+					.toggleClass('btn-add-condition-field btn-remove-condition-field')
+					.addClass('active btn-danger');
+
+				wrapper.append(templateConditionField);
+			}
+		});
+
+		$(document).on('change', '.input-field-is-expr', function () {
+			const isChecked 	= $(this).is(':checked');
+			const rowCondition	= $(this).closest('.row-condition-field');
+
+			if(isChecked) {
+				rowCondition.find('.group-expr').removeClass('d-none');
+			} else{
+				rowCondition.find('.group-expr').addClass('d-none');
+			}
+		});
+
+		$(document).on('click', '.row-condition-field .line-condition', function () {
+			let conditionType = $(this).find('.type-condition').attr('data-type-condition');
+			conditionClass = conditionType === '&&' ? 'badge-soft-warning' : 'badge-soft-primary';
+			conditionText  = conditionType === '&&' ? 'OR' : 'AND';
+			conditionType  = conditionType === '&&' ? '||' : '&&';
+
+			$(this)
+				.find('.type-condition')
+				.attr('data-type-condition', conditionType)
+				.find('span')
+				.attr('class', `badge ${conditionClass}`)
+				.text(conditionText);
+		});
+
+		$(document).on('click', '.btn-get-field-from-coll', function () {
+			const tid 			= $(this).closest('.template-field').attr('__tid');
+			const templateField = $(`.template-field[__tid=${tid}]`);
+			const fieldType  	= templateField.find('.col-field-type-object');
+
+			const fieldsChoosed = fieldType.find('.input-field-choosed-insert-update-from').val();
+			const refFieldName 	= fieldType.find('.input-field-value-reference').val().trim();
+
+			if(!refFieldName){
+				return SwalMixin('Bạn cần nhập tên field reference', 'warning');
+			}
+
+			$.ajax({
+				type: "GET",
+				url: `/list-field-by-coll?name=${refFieldName}`,
+			}).done(resp => {
+				const { listFields } = resp;
+
+				if(listFields.length){
+					let htmlListFields = '';
+					let listFieldsChoosed = fieldsChoosed ? fieldsChoosed.split(',') : [];
+
+					listFields.map((field, index) => {
+						let isCheck = listFieldsChoosed.includes(field.name);
+
+						htmlListFields += `
+							<li class="list-group-item">
+								<div class="checkbox checkbox-success form-check-inline">
+									<input type="checkbox" id="cbField${index}" value="${field.name}" ${isCheck && 'checked'}>
+									<label for="cbField${index}"> ${field.name} </label>
+								</div>
+							</li>
+						`;
+					})
+
+					$('.modal-get-field-from-coll .container-list-field-collection .list-group').html(htmlListFields);
+					$('.modal-get-field-from-coll').attr('__tid', tid);
+					$('.modal-get-field-from-coll').modal('show');
+				} else{
+					SwalMixin('Không tìm thấy collection này', 'error');
+				}
+
+			}).fail(err => SwalMixin(err.message, 'error'))
+		});
+
+		$('.modal-get-field-from-coll').on('hidden.bs.modal', function () {
+			const tid 			= $(this).attr('__tid');
+			const templateField = $(`.template-field[__tid=${tid}]`);
+			const input 		= templateField.find('.col-field-type-object .input-field-choosed-insert-update-from');
+
+			let dataInsertUpdateFrom = [];
+			$(this).find('.list-group .list-group-item').each((index, elem) => {
+				const isChecked = $(`#cbField${index}`).is(':checked');
+				const value 	= $(`#cbField${index}`).val();
+
+				if(isChecked){
+					dataInsertUpdateFrom = [...dataInsertUpdateFrom, value];
+				}
+			})
+
+			if(dataInsertUpdateFrom.length){
+				input.val(dataInsertUpdateFrom.join(','));
+			}
+		})
+
+		$('.icon-demo-content > div').on('click', function () {
+			const classIcon = $(this).find('i').attr('class');
+
+			$('#modalChooseIcon').modal('hide');
+			$('.btn-choose-icon i').removeAttr('class');
+			$('.btn-choose-icon i').attr('class', classIcon);
+		});
+
+		$('.btn-create-package').on('click', function () {
+			const collectionName 		= $('.input-collection-name').val();
+			const collectionDescription = $('.input-collection-description').val();
+			let isFieldNameEmpty 		= false;
+
+			$('.template-field:not(.d-none)').each((index, elem) => {
+				const fieldName = $(elem).find('.input-field-name').val();
+				if(!fieldName && !isFieldNameEmpty){
+					isFieldNameEmpty = true;
+				}
+			})
+
+			if(!$('.template-field:not(.d-none)').length){
+				return Swal.mixin({
+					toast: true,
+					position: 'top',
+					showConfirmButton: false,
+					timer: 1500,
+					// timerProgressBar: true,
+					didOpen: (toast) => {
+						toast.addEventListener('mouseenter', Swal.stopTimer)
+						toast.addEventListener('mouseleave', Swal.resumeTimer)
+					}
+				}).fire({
+					icon: 'warning',
+					title: 'Bạn cần tạo field cho collection'
+				})
+			}
+
+			if(isFieldNameEmpty){
+				return Swal.mixin({
+					toast: true,
+					position: 'top',
+					showConfirmButton: false,
+					timer: 1500,
+					// timerProgressBar: true,
+					didOpen: (toast) => {
+						toast.addEventListener('mouseenter', Swal.stopTimer)
+						toast.addEventListener('mouseleave', Swal.resumeTimer)
+					}
+				}).fire({
+					icon: 'warning',
+					title: 'Bạn cần nhập đầy đủ tên cho các field'
+				})
+			}
+
+			if(!collectionName){
+				return Swal.mixin({
+					toast: true,
+					position: 'top',
+					showConfirmButton: false,
+					timer: 1500,
+					// timerProgressBar: true,
+					didOpen: (toast) => {
+						toast.addEventListener('mouseenter', Swal.stopTimer)
+						toast.addEventListener('mouseleave', Swal.resumeTimer)
+					}
+				}).fire({
+					icon: 'warning',
+					title: 'Bạn cần nhập tên cho collection'
+				})
+			}
+
+			Swal.fire({
+				title: 'Nhập đường dẫn project',
+				input: 'text',
+				inputAttributes: {
+					autocapitalize: 'off',
+					placeholder: 'VD: /var/www/LDK-SOFTWARE/your-project'
+				},
+				inputValue: localStorage.getItem('pathSave'),
+				html: `
+					<div class="row">
+						<div class="col-12 d-flex flex-wrap justify-content-center">
+							<div class="checkbox checkbox-primary me-3">
+								<input id="cbSchema" type="checkbox" checked>
+								<label for="cbSchema">
+									Schema
+								</label>
+							</div>
+							<div class="checkbox checkbox-primary me-3">
+								<input id="cbApi" type="checkbox" checked>
+								<label for="cbApi">
+									API
+								</label>
+							</div>
+							<div class="checkbox checkbox-primary me-3">
+								<input id="cbModel" type="checkbox" checked>
+								<label for="cbModel">
+									Model
+								</label>
+							</div>
+							<div class="checkbox checkbox-primary me-3">
+								<input id="cbView" type="checkbox" checked>
+								<label for="cbView">
+									View
+								</label>
+							</div>
+							<div class="checkbox checkbox-primary me-3">
+								<input id="cbScript" type="checkbox" checked>
+								<label for="cbScript">
+									Script
+								</label>
+							</div>
+						</div>
+					</div>
+				`,
+				showCancelButton: true,
+				confirmButtonText: 'Xác nhận',
+				cancelButtonText: 'Huỷ',
+				showLoaderOnConfirm: true,
+				preConfirm: (pathSave) => {
+					if(!pathSave){
+						Swal.showValidationMessage(`Bạn chưa nhập đường dẫn lưu package`);
+					}
+
+					let isCreateSchema 	= Swal.getPopup().querySelector('#cbSchema').checked;
+					let isCreateApi 	= Swal.getPopup().querySelector('#cbApi').checked;
+					let isCreateModel 	= Swal.getPopup().querySelector('#cbModel').checked;
+					let isCreateView 	= Swal.getPopup().querySelector('#cbView').checked;
+					let isCreateScript 	= Swal.getPopup().querySelector('#cbScript').checked;
+
+					let conditionCreatePackage = {
+						isCreateSchema, isCreateApi, isCreateModel, isCreateView, isCreateScript
+					}
+
+					return {
+						pathSave, conditionCreatePackage
+					}
+				},
+				allowOutsideClick: () => !Swal.isLoading()
+			}).then((result) => {
+				if (result.value) {
+					localStorage.setItem('pathSave', result.value.pathSave);
+					createPackage(result.value, collectionName, collectionDescription);
+				}
+			})
+
+		});
+
+		function createPackage(values, collectionName, collectionDescription) {
+			const { pathSave, conditionCreatePackage } = values;
+
+			let isServerSide   = $('#cbIsServerSide').is(':checked');
+			let isApiAddress   = $('#cbIsApiAddress').is(':checked');
+			let isSystemConfig = $('#cbIsSystemConfig').is(':checked');
+			let folderName	 = $('.input-folder').val().trim();
+			let iconLeftbar	 = $('.btn-choose-icon i').attr('class');
+			let fields 		 = [];
+			let fieldsExcept = [];
+			let extendsAPI 	 = [];
+
+			if(!folderName){
+				return Swal.fire('Bạn cần nhập tên folder', '', 'warning');
+			}
+
+			$('.template-field:not(.d-none)').each((index, elem) => {
+				const tid		= $(elem).attr('__tid');
+				const fieldType = $(elem).find('.input-field-type').val();
+				const fieldName = $(elem).find('.input-field-name').val();
+				const fieldNote = $(elem).find('.input-field-note').val();
+
+				switch (fieldType) {
+					case "text":
+
+						(() => {
+							const fieldString 	= $(elem).find('.col-field-type-string');
+							const isEnum		= fieldString.find('.input-field-is-enum').is(':checked');
+							const isDefault 	= fieldString.find('.input-field-is-default').val();
+							const valueDefault 	= fieldString.find('.input-field-value-default').val();
+							const placeholder 	= fieldString.find('.input-field-placeholder').val();
+							const isPrimary		= fieldString.find('.input-field-is-primary-key').is(":checked");
+							const isUnique 		= fieldString.find('.input-field-is-unique').is(":checked");
+							const isRequire 	= fieldString.find('.input-field-is-require').is(":checked");
+							const isTrim 		= fieldString.find('.input-field-is-trim').is(":checked");
+							const isSlug 		= fieldString.find('.input-field-is-slug').is(":checked");
+							const isInsert 		= fieldString.find('.input-field-is-insert').is(":checked");
+							const isUpdate 		= fieldString.find('.input-field-is-update').is(":checked");
+							const isShowList 	= fieldString.find('.input-field-is-show-list').is(":checked");
+							const isTinyMCE		= fieldString.find('.input-field-is-tiny').is(":checked");
+							const isTextarea	= fieldString.find('.input-field-is-textarea').is(":checked");
+							const isBold		= fieldString.find('.input-field-is-bold').is(":checked");
+							const isItalic		= fieldString.find('.input-field-is-italic').is(":checked");
+							const isExport		= fieldString.find('.input-field-is-export').is(":checked");
+							const isImport		= fieldString.find('.input-field-is-import').is(":checked");
+							// const isPassword	= fieldString.find('.input-field-is-password').is(":checked");
+							const fieldWidth    = fieldString.find('.input-field-width').val();
+
+							let dataEnum = [];
+
+							if(isEnum){
+								fieldString.find('.wrapper-field-enum .row-field-enum').each((i, elem) => {
+									const title = $(elem).find('.input-field-title-enum').val().trim();
+									const value = $(elem).find('.input-field-value-enum').val().trim();
+									const color = $(elem).find('.input-field-color-enum').val().trim();
+
+									if(title && value){
+										dataEnum = [...dataEnum, {
+											title, value, color
+										}]
+									}
+								})
+							}
+
+							fields[fields.length] = {
+								input: {
+									name: fieldName,
+									type: fieldType,
+									note: fieldNote,
+									isDefault: isDefault === '1' ? true : false,
+									default: valueDefault,
+									placeholder,
+									dataEnum,
+									isEnum,
+									isPrimary,
+									isUnique,
+									isRequire,
+									isTrim,
+									isSlug,
+									isShowList,
+									isTinyMCE,
+									isTextarea,
+									isBold,
+									isItalic,
+									isInsert,
+									isUpdate,
+									isExport,
+									isImport,
+									// isPassword,
+									widthDatatable: fieldWidth
+								}
+							}
+						})()
+
+						break;
+					case "number":
+
+						(() => {
+							const fieldNumber 		= $(elem).find('.col-field-type-number');
+							const modal 			= $(elem).find(`#modalCreateCondition_${tid}`);
+							const isSeparate		= modal.find('.input-field-is-separate-condition').is(':checked');
+							const messageError  	= modal.find('.input-message-response').val();
+							const isCurrency		= fieldNumber.find('.input-field-is-currency').is(':checked');
+							const isEnum			= fieldNumber.find('.input-field-is-enum').is(':checked');
+							const isCompare			= fieldNumber.find('.input-field-is-compare').is(':checked');
+							const isDefault 		= fieldNumber.find('.input-field-is-default').val();
+							const valueDefault 		= fieldNumber.find('.input-field-value-default').val();
+							const placeholder 		= fieldNumber.find('.input-field-placeholder').val();
+							const isPrimary			= fieldNumber.find('.input-field-is-primary-key').is(":checked");
+							const isRequire 		= fieldNumber.find('.input-field-is-require').is(":checked");
+							const isInsert 			= fieldNumber.find('.input-field-is-insert').is(":checked");
+							const isUpdate 			= fieldNumber.find('.input-field-is-update').is(":checked");
+							const isShowList 		= fieldNumber.find('.input-field-is-show-list').is(":checked");
+							const isStatus    		= fieldNumber.find('.input-field-is-show-status-in-list').is(":checked");
+							const isOrder    		= fieldNumber.find('.input-field-is-show-order-in-list').is(":checked");
+							const isExport			= fieldNumber.find('.input-field-is-export').is(":checked");
+							const isImport			= fieldNumber.find('.input-field-is-import').is(":checked");
+							const fieldWidth    	= fieldNumber.find('.input-field-width').val();
+
+							let dataEnum = [];
+							let dataCompareField = [];
+
+							if(isEnum){
+								fieldNumber.find('.wrapper-field-enum .row-field-enum').each((i, elem) => {
+									const title = $(elem).find('.input-field-title-enum').val().trim();
+									const value = $(elem).find('.input-field-value-enum').val().trim();
+									const color = $(elem).find('.input-field-color-enum').val().trim();
+
+									if(title && value){
+										dataEnum = [...dataEnum, {
+											title, value, color
+										}]
+									}
+								})
+							}
+
+							if(isCompare){
+								modal.find('.wrapper-condition-field .row-condition-field').each((i, elem) => {
+									const fromField 	= $(elem).find('.input-field-from-field').val().trim();
+									const compare 		= $(elem).find('.input-field-compare-field').val().trim();
+									const toField 		= $(elem).find('.input-field-to-field').val().trim();
+									const condition 	= $(elem).find('.type-condition').attr('data-type-condition');
+									const messageError 	= $(elem).find('.input-field-message-response').val().trim();
+
+									if(fromField && toField && compare){
+										dataCompareField = [...dataCompareField, {
+											fromField, compare, toField, condition, messageError
+										}]
+									}
+								})
+							}
+
+							fields[fields.length] = {
+								input: {
+									name: fieldName,
+									type: fieldType,
+									note: fieldNote,
+									isDefault: isDefault === '1' ? true : false,
+									default: valueDefault,
+									placeholder,
+									isCurrency,
+									dataEnum,
+									dataCompareField,
+									messageError,
+									isSeparateCondition: isSeparate,
+									isEnum,
+									isCompare,
+									isPrimary,
+									isRequire,
+									isShowList,
+									isInsert,
+									isUpdate,
+									isStatus,
+									isOrder,
+									isExport,
+									isImport,
+									widthDatatable: fieldWidth
+								}
+							}
+						})()
+
+						break;
+					case "boolean":
+
+						(() => {
+							const fieldBoolean 	= $(elem).find('.col-field-type-boolean');
+							const isDefault 	= fieldBoolean.find('.input-field-is-default').val();
+							const valueDefault 	= fieldBoolean.find('.input-field-value-default').is(":checked");
+							const isRequire 	= fieldBoolean.find('.input-field-is-require').is(":checked");
+							const isInsert 		= fieldBoolean.find('.input-field-is-insert').is(":checked");
+							const isUpdate 		= fieldBoolean.find('.input-field-is-update').is(":checked");
+							const isShowList 	= fieldBoolean.find('.input-field-is-show-list').is(":checked");
+							const isExport		= fieldBoolean.find('.input-field-is-export').is(":checked");
+							const isImport		= fieldBoolean.find('.input-field-is-import').is(":checked");
+							const fieldWidth    = fieldBoolean.find('.input-field-width').val();
+
+							fields[fields.length] = {
+								input: {
+									name: fieldName,
+									type: fieldType,
+									note: fieldNote,
+									isDefault: isDefault === '1' ? true : false,
+									default: valueDefault,
+									isRequire,
+									isShowList,
+									isInsert,
+									isUpdate,
+									isExport,
+									isImport,
+									widthDatatable: fieldWidth
+								}
+							}
+						})()
+
+						break;
+					case "date":
+
+						(() => {
+							const fieldDate 		= $(elem).find('.col-field-type-date');
+							const modal 			= $(elem).find(`#modalCreateCondition_${tid}`);
+							const isSeparate		= modal.find('.input-field-is-separate-condition').is(':checked');
+							const messageError  	= modal.find('.input-message-response').val();
+							const isDefault 		= fieldDate.find('.input-field-is-default').val();
+							const valueDefault 		= fieldDate.find('.input-field-value-default').val();
+							const formatDate 		= fieldDate.find('.input-field-format-date').val();
+							const dateType 			= fieldDate.find('.input-field-date-type').val();
+							const isRequire 		= fieldDate.find('.input-field-is-require').is(":checked");
+							const isCompare			= fieldDate.find('.input-field-is-compare').is(':checked');
+							const isInsert 			= fieldDate.find('.input-field-is-insert').is(":checked");
+							const isUpdate 			= fieldDate.find('.input-field-is-update').is(":checked");
+							const isShowList 		= fieldDate.find('.input-field-is-show-list').is(":checked");
+							const isExport			= fieldDate.find('.input-field-is-export').is(":checked");
+							const isImport			= fieldDate.find('.input-field-is-import').is(":checked");
+							const fieldWidth    	= fieldDate.find('.input-field-width').val();
+
+							let dataCompareField = [];
+
+							if(isCompare){
+								modal.find('.wrapper-condition-field .row-condition-field').each((i, elem) => {
+									const fromField 		= $(elem).find('.input-field-from-field').val().trim();
+									const compare 			= $(elem).find('.input-field-compare-field').val().trim();
+									const toField 			= $(elem).find('.input-field-to-field').val().trim();
+									const condition 		= $(elem).find('.type-condition').attr('data-type-condition');
+									const messageError 		= $(elem).find('.input-field-message-response').val().trim();
+									const isExprCondition	= $(elem).find('.input-field-is-expr').is(':checked');
+									const calculationExpr	= $(elem).find('.input-field-calculation').val();
+									const calculationValue	= $(elem).find('.input-field-number-calculation').val();
+									const calculationUnit 	= $(elem).find('.input-field-unit-calculation').val();
+
+									if(fromField && toField && compare){
+										dataCompareField = [...dataCompareField, {
+											fromField, compare, toField, condition, messageError,
+											isExprCondition, calculationExpr, calculationValue, calculationUnit
+										}]
+									}
+
+								})
+							}
+
+							fields[fields.length] = {
+								input: {
+									name: fieldName,
+									type: fieldType,
+									note: fieldNote,
+									isDefault: ['1', '2'].includes(isDefault) ? true : false,
+									default: isDefault === '2' ? 'datenow' : valueDefault,
+									dateType,
+									formatDate,
+									dataCompareField,
+									messageError,
+									isSeparateCondition: isSeparate,
+									isRequire,
+									isCompare,
+									isShowList,
+									isInsert,
+									isUpdate,
+									isExport,
+									isImport,
+									widthDatatable: fieldWidth
+								}
+							}
+						})()
+
+						break;
+					case "object":
+
+						(() => {
+							const fieldObject 			= $(elem).find('.col-field-type-object');
+							const typeObject 			= fieldObject.find('.input-field-type-object').val();
+							const isPrimary				= fieldObject.find('.input-field-is-primary-key').is(":checked");
+							const isRequire 			= fieldObject.find('.input-field-is-require').is(":checked");
+							const ref 					= fieldObject.find('.input-field-value-reference').val();
+							const refShow				= fieldObject.find('.input-field-reference-show').val();
+							const isInsert 				= fieldObject.find('.input-field-is-insert').is(":checked");
+							const isUpdate 				= fieldObject.find('.input-field-is-update').is(":checked");
+							const isShowList 			= fieldObject.find('.input-field-is-show-list').is(":checked");
+							const isImage 				= fieldObject.find('.input-field-is-image').is(":checked");
+							const isLink 				= fieldObject.find('.input-field-is-link').is(":checked");
+							const isExport				= fieldObject.find('.input-field-is-export').is(":checked");
+							const isImport				= fieldObject.find('.input-field-is-import').is(":checked");
+							const isBigData				= fieldObject.find('.input-field-is-big-data').is(":checked");
+							const isInsertUpdateFrom	= fieldObject.find('.input-field-insert-update-from').is(":checked");
+							const dataInsertUpdateFrom	= fieldObject.find('.input-field-choosed-insert-update-from').val();
+							const typeImage 			= fieldObject.find('.input-field-type-image').val();
+							const fileType 				= fieldObject.find('.input-field-file-type').val();
+							const followBy 				= fieldObject.find('.input-field-follow-by').val();
+							const fieldWidth    		= fieldObject.find('.input-field-width').val();
+
+							const dataFieldObject = {
+								input: {
+									name: fieldName,
+									type: fieldType,
+									note: fieldNote,
+									isPrimary,
+									isRequire,
+									isShowList,
+									isInsert,
+									isUpdate,
+									isExport,
+									isImport,
+									isBigData,
+									isInsertUpdateFrom,
+									widthDatatable: fieldWidth,
+									isLink
+								}
+							}
+
+							if(isInsertUpdateFrom){
+								const listFieldsChoosed = dataInsertUpdateFrom.split(',');
+								dataFieldObject.input.dataInsertUpdateFrom = listFieldsChoosed;
+
+								fieldsExcept = [...fieldsExcept, {
+									fieldName,
+									listFieldsChoosed
+								}];
+							}
+
+							if(isImage){
+								dataFieldObject.input.isImage 	= isImage;
+								dataFieldObject.input.typeImage = typeImage;
+								dataFieldObject.input.fileType 	= fileType;
+							}
+
+							if(typeObject === "1"){
+								dataFieldObject.input.ref 	  	= ref;
+								dataFieldObject.input.refShow 	= refShow;
+								dataFieldObject.input.followBy 	= followBy;
+							}
+
+							fields[fields.length] = dataFieldObject;
+						})()
+
+						break;
+					case "array":
+
+						(() => {
+							const fieldArray 	= $(elem).find('.col-field-type-array');
+							const typeArray 	= fieldArray.find('.input-field-type-array').val();
+							const isRequire 	= fieldArray.find('.input-field-is-require').is(":checked");
+							const ref 			= fieldArray.find('.input-field-value-reference').val();
+							const refShow		= fieldArray.find('.input-field-reference-show').val();
+							const isInsert 		= fieldArray.find('.input-field-is-insert').is(":checked");
+							const isUpdate 		= fieldArray.find('.input-field-is-update').is(":checked");
+							const isShowList 	= fieldArray.find('.input-field-is-show-list').is(":checked");
+							const isImage 		= fieldArray.find('.input-field-is-image').is(":checked");
+							const isExport		= fieldArray.find('.input-field-is-export').is(":checked");
+							const isImport		= fieldArray.find('.input-field-is-import').is(":checked");
+							const isBigData		= fieldArray.find('.input-field-is-big-data').is(":checked");
+							const typeUpload 	= fieldArray.find('.input-field-type-upload').val();
+							const fileType 		= fieldArray.find('.input-field-file-type').val();
+							const fieldWidth    = fieldArray.find('.input-field-width').val();
+							const tableSub    	= fieldArray.find('.input-field-table-sub').val();
+
+							const dataFieldArray = {
+								input: {
+									name: fieldName,
+									type: fieldType,
+									note: fieldNote,
+									isRequire,
+									isShowList,
+									isInsert,
+									isUpdate,
+									isExport,
+									isImport,
+									isBigData,
+									widthDatatable: fieldWidth
+								}
+							}
+
+							if(isImage){
+								dataFieldArray.input.isImage   	= isImage;
+								dataFieldArray.input.typeUpload = typeUpload;
+								dataFieldArray.input.fileType 	= fileType;
+							}
+
+							if(typeArray === "1"){
+								dataFieldArray.input.ref 	  = ref;
+								dataFieldArray.input.refShow  = refShow;
+								dataFieldArray.input.tableSub = tableSub;
+							}
+
+							fields[fields.length] = dataFieldArray;
+						})()
+
+						break;
+					default:
+						break;
+				}
+
+			})
+
+			$('.template-api:not(.d-none)').each((index, elem) => {
+				const method 		= $(elem).find('.select-method').val();
+				const endpoint 		= $(elem).find('.input-endpoint').val();
+				const note 			= $(elem).find('.input-note').val();
+				const authenticate	= $(elem).find('.input-permission:checked').val();
+				const authorize		= $(elem).find('.input-authorize:checked').val();
+
+				switch (method) {
+					case "GET": {
+						let groupGet 	 			= $(elem).find('.input-group-get');
+						let typeGet 	 			= $(elem).find('.input-get-method:checked').val();
+						let fieldsGet 				= groupGet.find('.container-list-field-collection .cb-field');
+						let fieldsPopulate			= groupGet.find('.container-list-field-populate .cb-field');
+						let fieldsChoosed			= [];
+						let fieldsPopulateChoosed	= [];
+
+						if(fieldsGet && fieldsGet.length){
+							fieldsGet.map((i, cb) => {
+								const isChecked = $(cb).is(':checked');
+								const value 	= $(cb).val();
+
+								if(isChecked){
+									let field = fields.find(row => row.input.name === value);
+									fieldsChoosed = [...fieldsChoosed, field];
+								}
+							})
+						}
+
+						if(fieldsPopulate && fieldsPopulate.length){
+							fieldsPopulate.map((i, cb) => {
+								const isChecked = $(cb).is(':checked');
+								const value 	= $(cb).val();
+
+								if(isChecked){
+									fieldsPopulateChoosed = [...fieldsPopulateChoosed, value];
+								}
+							})
+						}
+
+						extendsAPI[extendsAPI.length] = {
+							method: 'GET',
+							endpoint: endpoint,
+							fields: fieldsChoosed,
+							fieldsPopulate: fieldsPopulateChoosed,
+							note,
+							typeGet,
+							authenticate,
+							authorize,
+						}
+
+						break;
+					}
+					case "POST": {
+						let groupPost 	 	= $(elem).find('.input-group-post');
+						let typePost 	 	= $(elem).find('.input-post-method:checked').val();
+						let fieldsCreate 	= groupPost.find('.container-list-field-collection .cb-field');
+						let fieldsChoosed	= [];
+
+						if(fieldsCreate && fieldsCreate.length){
+							fieldsCreate.map((i, cb) => {
+								const isChecked = $(cb).is(':checked');
+								const value 	= $(cb).val();
+
+								if(isChecked){
+									let field = fields.find(row => row.input.name === value);
+									fieldsChoosed = [...fieldsChoosed, field];
+								}
+							})
+						}
+
+						extendsAPI[extendsAPI.length] = {
+							method: 'POST',
+							endpoint: endpoint,
+							fields: fieldsChoosed,
+							note,
+							typePost,
+							authenticate,
+							authorize
+						}
+
+						break;
+					}
+					case "PUT": {
+						let groupPut 	 	= $(elem).find('.input-group-put');
+						let fieldsUpdate 	= groupPut.find('.container-list-field-collection .cb-field');
+						let fieldsChoosed	= [];
+
+						if(fieldsUpdate && fieldsUpdate.length){
+							fieldsUpdate.map((i, cb) => {
+								const isChecked = $(cb).is(':checked');
+								const value 	= $(cb).val();
+
+								if(isChecked){
+									let field = fields.find(row => row.input.name === value);
+									fieldsChoosed = [...fieldsChoosed, field];
+								}
+							})
+						}
+
+						extendsAPI[extendsAPI.length] = {
+							method: 'PUT',
+							endpoint: endpoint,
+							note,
+							fields: fieldsChoosed,
+							authenticate,
+							authorize
+						}
+
+						break;
+					}
+					case "DELETE": {
+						let typeDelete = $(elem).find('.input-delete-method:checked').val();
+
+						extendsAPI[extendsAPI.length] = {
+							method: 'DELETE',
+							endpoint: endpoint,
+							note,
+							typeDelete,
+							authenticate,
+							authorize
+						}
+
+						break;
+					}
+				}
+			})
+
+			if (isApiAddress) {
+				generateFieldAddress(fields);
+			}
+
+			console.log({ extendsAPI, fieldsExcept, fields, isSystemConfig });
+			
+			$.ajax({
+				type: "POST",
+				url: "/generate-package",
+				data: {
+					collectionName, collectionDescription, extendsAPI,
+					icon: iconLeftbar, conditionCreatePackage, fieldsExcept,
+					fields, pathSave, folderName, isServerSide, isApiAddress, isSystemConfig
+				}
+			}).done(resp => {
+				const { error, message } = resp;
+
+				if(error){
+					return Swal.fire(message, '', 'error');
+				}
+
+				Swal.fire('Tạo package thành công', '', 'success');
+			}).fail(err => {
+				console.error(err);
+				Swal.fire(err.message, '', 'error');
+			})
+		}
+
+		function generateFieldAddress(fields) {
+			const listFieldAddress = [
+				{
+					nameField: 'city',
+					noteField: 'Tỉnh/Thành phố',
+					placeholder: 'Chọn quận/huyện',
+					type: 'show',
+					child: 'district',
+					code: ''
+				},
+				{
+					nameField: 'cityName',
+					noteField: 'Tỉnh/Thành phố Text',
+					placeholder: 'Chọn quận/huyện',
+					type: 'not-show',
+					child: '',
+					code: 'city'
+				},
+				{
+					nameField: 'district',
+					noteField: 'Quận/Huyện',
+					placeholder: 'Chọn xã/phường',
+					type: 'show',
+					child: 'ward',
+					code: ''
+				},
+				{
+					nameField: 'districtName',
+					noteField: 'Quận/Huyện Text',
+					placeholder: 'Chọn xã/phường',
+					type: 'not-show',
+					child: '',
+					code: 'district'
+				},
+				{
+					nameField: 'ward',
+					noteField: 'Xã/Phường',
+					placeholder: 'Chọn xã/phường',
+					type: 'show',
+					child: '',
+					code: ''
+				},
+				{
+					nameField: 'wardName',
+					noteField: 'Xã/Phường Text',
+					placeholder: 'Chọn xã/phường',
+					type: 'not-show',
+					child: '',
+					code: 'ward'
+				},
+			];
+
+			listFieldAddress.map(item => {
+				fields[fields.length] = {
+					input: {
+						name:        item.nameField,
+						type:        'text',
+						note:        item.noteField,
+						isDefault:   false,
+						placeholder: item.placeholder,
+						dataEnum:    [],
+						isEnum:      false,
+						isUnique:    false,
+						isRequire:   true,
+						isTrim:      false,
+						isSlug:      false,
+						isShowList:  true,
+						isTinyMCE:   false,
+						isTextarea:  false,
+						isBold:      false,
+						isItalic:    false,
+						isInsert:    true,
+						isUpdate:    true,
+						isExport:    true,
+						isImport:    true,
+						isApiAddress: true,
+						isShowSelect: item.type,
+						fieldChild:   item.child,
+						inputCode:    item.code
+					}
+				}
+			});
+		}
+
+		$('.sc-select-collection').on('change', function () {
+			let value = $(this).val();
+			let queryString = '';
+
+			if(value !== '0'){
+				queryString += `?coll=${value}`;
+			}
+
+			location.href = `/admin/generate-tools${queryString}`;
+		});
+
+		$('.btn-delete-package').on('click', async function () {
+			ConfirmCustomWithIcon({ 
+				title: "Bạn có chắc chắn muốn xoá collection không?", 
+				icon: 'warning',
+				confirmButtonText: 'Có',
+				cancelButtonText: 'Không'
+			}).then(result => {
+				if(result.value){
+					$.ajax({
+						type: "GET",
+						url: `/delete-coll/${collParam}`,
+					}).always(() => {
+						Swal.fire('Xoá package thành công', '', 'success');
+						setTimeout(() => location.replace('/admin/generate-tools'), 1000);
+					})
+				}
+			});
+		});
+
+
+		// -------------- CUSTOM API --------------
+
+
+		const getListFields = () => {
+			let arrayFields = [];
+
+			$('.template-field:not(.d-none)').each((index, elem) => {
+				const fieldType = $(elem).find('.input-field-type').val();
+				const fieldName = $(elem).find('.input-field-name').val();
+				const fieldNote = $(elem).find('.input-field-note').val();
+
+				switch (fieldType) {
+					case "text":
+
+						(() => {
+							const fieldString 	= $(elem).find('.col-field-type-string');
+							const isEnum		= fieldString.find('.input-field-is-enum').is(':checked');
+							const isUnique 		= fieldString.find('.input-field-is-unique').is(":checked");
+							const isRequire 	= fieldString.find('.input-field-is-require').is(":checked");
+							const isSlug 		= fieldString.find('.input-field-is-slug').is(":checked");
+
+							let dataEnum = [];
+
+							if(isEnum){
+								fieldString.find('.wrapper-field-enum .row-field-enum').each((i, elem) => {
+									const title = $(elem).find('.input-field-title-enum').val().trim();
+									const value = $(elem).find('.input-field-value-enum').val().trim();
+									const color = $(elem).find('.input-field-color-enum').val().trim();
+
+									if(title && value){
+										dataEnum = [...dataEnum, {
+											title, value, color
+										}]
+									}
+								})
+							}
+
+							arrayFields[arrayFields.length] = {
+								input: {
+									name: fieldName,
+									type: fieldType,
+									note: fieldNote,
+									dataEnum,
+									isEnum,
+									isUnique,
+									isRequire,
+									isSlug,
+								}
+							}
+
+						})();
+						
+						break;
+					case "number":
+
+						(() => {
+								const fieldNumber 	= $(elem).find('.col-field-type-number');
+								const isEnum		= fieldNumber.find('.input-field-is-enum').is(':checked');
+								const isRequire 	= fieldNumber.find('.input-field-is-require').is(":checked");
+
+								let dataEnum = [];
+
+								if(isEnum){
+									fieldNumber.find('.wrapper-field-enum .row-field-enum').each((i, elem) => {
+										const title = $(elem).find('.input-field-title-enum').val().trim();
+										const value = $(elem).find('.input-field-value-enum').val().trim();
+										const color = $(elem).find('.input-field-color-enum').val().trim();
+
+										if(title && value){
+											dataEnum = [...dataEnum, {
+												title, value, color
+											}]
+										}
+									})
+								}
+
+								arrayFields[arrayFields.length] = {
+									input: {
+										name: fieldName,
+										type: fieldType,
+										note: fieldNote,
+										dataEnum,
+										isEnum,
+										isRequire,
+									}
+								}
+							})()
+
+						break;
+					case "boolean":
+
+						(() => {
+								const fieldBoolean 	= $(elem).find('.col-field-type-boolean');
+								const isRequire 	= fieldBoolean.find('.input-field-is-require').is(":checked");
+
+								arrayFields[arrayFields.length] = {
+									input: {
+										name: fieldName,
+										type: fieldType,
+										note: fieldNote,
+										isRequire,
+									}
+								}
+							})()
+
+						break;
+					case "date":
+
+						(() => {
+							const fieldDate 	= $(elem).find('.col-field-type-date');
+							const isRequire 	= fieldDate.find('.input-field-is-require').is(":checked");
+
+							arrayFields[arrayFields.length] = {
+								input: {
+									name: fieldName,
+									type: fieldType,
+									note: fieldNote,
+									isRequire,
+								}
+							}
+						})()
+
+						break;
+					case "object":
+
+						(() => {
+								const fieldObject 	= $(elem).find('.col-field-type-object');
+								const typeObject 	= fieldObject.find('.input-field-type-object').val();
+								const ref 			= fieldObject.find('.input-field-value-reference').val();
+								const isImage 		= fieldObject.find('.input-field-is-image').is(":checked");
+								const typeImage 	= fieldObject.find('.input-field-type-image').val();
+
+								const dateFieldObject = {
+									input: {
+										name: fieldName,
+										type: fieldType,
+										note: fieldNote,
+									}
+								}
+
+								if(isImage){
+									dateFieldObject.input.isImage = isImage;
+									dateFieldObject.input.typeImage = typeImage;
+								}
+
+								if(typeObject === "1"){
+									dateFieldObject.input.ref = ref;
+								}
+
+								arrayFields[arrayFields.length] = dateFieldObject;
+							})()
+
+						break;
+					case "array":
+
+						(() => {
+								const fieldArray 	= $(elem).find('.col-field-type-array');
+								const typeArray 	= fieldArray.find('.input-field-type-array').val();
+								const ref 			= fieldArray.find('.input-field-value-reference').val();
+								const isImage 		= fieldArray.find('.input-field-is-image').is(":checked");
+
+								const dateFieldArray = {
+									input: {
+										name: fieldName,
+										type: fieldType,
+										note: fieldNote,
+									}
+								}
+
+								if(isImage){
+									dateFieldArray.input.isImage = isImage;
+								}
+
+								if(typeArray === "1"){
+									dateFieldArray.input.ref = ref;
+								}
+
+								arrayFields[arrayFields.length] = dateFieldArray;
+							})()
+
+						break;
+					default:
+						break;
+				}
+
+			});
+
+			return arrayFields;
+		}
+
+		const renderListField = () => {
+			let fields = getListFields();
+			let htmlContainerListField = ``;
+
+			for (const field of fields) {
+				let inputType = field.input.type;
+
+				if(field.input.ref){
+					if(inputType === 'object'){
+						inputType = 'objectID';
+					} else{
+						inputType = 'arrObjectID';
+					}
+				}
+
+				htmlContainerListField += `
+					<div class="form-check">
+						<label class="form-check-label">
+							${field.input.name} - ${inputType}
+							<input class="form-check-input cb-field" type="checkbox" value="${field.input.name}" checked>
+						</label>
+					</div>
+				`;
+			}
+
+			return htmlContainerListField;
+		}
+
+		const renderListPopulate = () => {
+			let fields = getListFields();
+			let htmlContainerListPopulate = ``;
+
+			fields.map(field => {
+				let inputType = field.input.type;
+				if(field.input.ref){
+					if(inputType === 'array'){
+						inputType = 'arrObjectID';
+					} else{
+						inputType = 'objectID';
+					}
+
+					htmlContainerListPopulate += `
+						<div class="form-check">
+							<label class="form-check-label">
+								${field.input.name} - ${inputType}
+								<input class="form-check-input cb-field" type="checkbox" value="${field.input.name}" checked>
+							</label>
+						</div>
+					`;
+				}
+				
+			})
+
+			return htmlContainerListPopulate;
+		}
+
+		const selectMethodAPI = (tid, value, that) => {
+			const templateApi 	= $(`.template-api[__tid=${tid}]`);
+			const inputEndpoint = templateApi.find('.input-endpoint');
+			const elemContainerListField = templateApi.find('.container-list-field-collection');
+
+			templateApi.find('.input-group-property').addClass('d-none');
+			inputEndpoint.attr('placeholder', '/api/category/:categoryID');
+
+			switch (value) {
+				case 'GET': {
+					$(that).css('background-color', '#63B0FA');
+					templateApi.find('.input-group-get').removeClass('d-none');
+					templateApi.find('.input-group-get .input-get-method[value="get-info"]').trigger('click');
+					templateApi.find('.input-group-get .container-list-field-collection').parent().addClass('d-none');
+					break;
+				}
+				case 'POST': {
+					$(that).css('background-color', '#4EC991');
+					inputEndpoint.attr('placeholder', '/api/category');
+					templateApi.find('.input-group-post').removeClass('d-none');
+
+					const containerFieldsPostMethod = templateApi.find('.input-group-post .container-list-field-collection');
+
+					if(!containerFieldsPostMethod.html()){
+						let htmlContainerListField = renderListField();
+						containerFieldsPostMethod.html(htmlContainerListField);
+					}
+					break;
+				}
+				case 'PUT': {
+					$(that).css('background-color', '#F9A044');
+					templateApi.find('.input-group-put').removeClass('d-none');
+
+					const containerFieldsPutMethod = templateApi.find('.input-group-put .container-list-field-collection');
+
+					if(!containerFieldsPutMethod.html()){
+						let htmlContainerListField = renderListField();
+						containerFieldsPutMethod.html(htmlContainerListField);
+					}
+					break;
+				}
+				case 'DELETE': {
+					$(that).css('background-color', '#F64446');
+					templateApi.find('.input-group-delete').removeClass('d-none');
+					break;
+				}
+				default:
+					break;
+			}
+		}
+		
+		const apiGetMethod = (tid, value) => {
+			const templateApi 	= $(`.template-api[__tid=${tid}]`);
+			const inputGroupGet = templateApi.find('.input-group-get').removeClass('d-none');
+			const inputEndpoint = templateApi.find('.input-endpoint');
+
+			const elemContainerListFieldPopulate = templateApi.find('.input-group-get .container-list-field-populate');
+			const elemContainerListField 		 = templateApi.find('.input-group-get .container-list-field-collection');
+
+			if(value === 'get-info'){
+				inputGroupGet.find('.container-list-field-collection').parent().addClass('d-none');
+				inputEndpoint.attr('placeholder', '/api/category/:categoryID');
+
+				if(!elemContainerListFieldPopulate.html()){
+					let htmlContainerListPopulate = renderListPopulate();
+					elemContainerListFieldPopulate.html(htmlContainerListPopulate);
+				}
+			} else{
+				inputGroupGet.find('.container-list-field-collection').parent().removeClass('d-none');
+				inputEndpoint.attr('placeholder', '/api/categories?select={}&filter={}&sort={}&limit=...&page=...');
+
+				if(!elemContainerListField.html()){
+					let htmlContainerListField = renderListField();
+					elemContainerListField.html(htmlContainerListField);
+				}
+				
+				if(!elemContainerListFieldPopulate.html()){
+					let htmlContainerListPopulate = renderListPopulate();
+					elemContainerListFieldPopulate.html(htmlContainerListPopulate);
+				}
+			}
+		}
+
+		const apiDeleteMethod = (tid, value) => {
+			const templateApi = $(`.template-api[__tid=${tid}]`);
+
+			if(value === 'delete-many'){
+				templateApi
+					.find('.input-endpoint')
+					.attr('placeholder', '/api/category/:categoriesID');
+			} else{
+				templateApi
+					.find('.input-endpoint')
+					.attr('placeholder', '/api/category/:categoryID');
+			}
+		}
+
+		const autoCreateAPI = () => {
+			[1,2,3,4,5,6].map(item => {
+				const tid = randomStringFixLengthCode(15);
+				const templateApi = $('.template-api.d-none')
+					.clone()
+					.removeClass('d-none')
+					.attr('__tid', tid);
+
+				templateApi.find('.input-get-method').attr('name', tid);
+				templateApi.find('.input-post-method').attr('name', tid);
+				templateApi.find('.input-delete-method').attr('name', tid);
+				templateApi.find('.input-permission').attr('name', `${tid}-permission`);
+				templateApi.find('.input-authorize').attr('name', `${tid}-authorize`);
+
+				const inputSelectMethod = templateApi.find('.select-method');
+				$(`div[data-repeater-list="apis"]`).append(templateApi);
+
+				switch (item) {
+					case 1:
+						apiGetMethod(tid, 'get-info');
+						templateApi.find(`.input-get-method[value="get-info"]`).prop('checked', true);
+						break;
+					case 2:
+						apiGetMethod(tid, 'get-list');
+						templateApi.find('.input-get-method[value="get-list"]').prop('checked', true);
+						break;
+					case 3:
+						inputSelectMethod.val('POST');
+						selectMethodAPI(tid, 'POST', inputSelectMethod);
+						break;
+					case 4:
+						inputSelectMethod.val('PUT');
+						selectMethodAPI(tid, 'PUT', inputSelectMethod);
+						break;
+					case 5:
+						inputSelectMethod.val('DELETE');
+						selectMethodAPI(tid, 'DELETE', inputSelectMethod);
+						apiDeleteMethod(tid, 'delete-one');
+						templateApi.find('.input-delete-method[value="delete-one"]').prop('checked', true);
+						break;
+					case 6:
+						inputSelectMethod.val('DELETE');
+						selectMethodAPI(tid, 'DELETE', inputSelectMethod);
+						apiDeleteMethod(tid, 'delete-many');
+						templateApi.find('.input-delete-method[value="delete-many"]').prop('checked', true);
+						break;
+					default:
+						break;
+				}
+
+			})
+		}
+
+		$('.btn-show-modal-create-api').on('click', function () {
+			$('.modal-create-api').modal('show');
+
+			const templateAPI = $('.modal-create-api .template-api:not(.d-none)');
+			!templateAPI.length && autoCreateAPI();
+		});
+
+		$('.btn-add-api').on('click', function () {
+			const tid = randomStringAndNumberFixLengthCode(15);
+			const templateApi = $('.template-api.d-none')
+				.clone()
+				.removeClass('d-none')
+				.attr('__tid', tid);
+
+			templateApi.find('.input-get-method').attr('name', tid);
+			templateApi.find('.input-post-method').attr('name', tid);
+			templateApi.find('.input-delete-method').attr('name', tid);
+			templateApi.find('.input-permission').attr('name', `${tid}-permission`);
+			templateApi.find('.input-authorize').attr('name', `${tid}-authorize`);
+			$(`div[data-repeater-list="apis"]`).append(templateApi);
+		});
+
+		$('#btnCancelGenerateApi').on('click', function () {
+			$('.template-api:not(.d-none)').remove();
+		});
+
+		$(document).on('change', '.input-permission', function () {
+			const value 	  	= $(this).val();
+			const tid 		  	= $(this).closest('.template-api').attr('__tid');
+			
+			if(value === 'permission') {
+				$(this).closest('.input-group').find('.block-authorize').removeClass('d-none');
+			} else{
+				$(this).closest('.input-group').find('.block-authorize').addClass('d-none');
+			}
+		});
+
+		$(document).on('change', '.select-method', function () {
+			const value 	  	= $(this).val();
+			const tid 		  	= $(this).closest('.template-api').attr('__tid');
+			selectMethodAPI(tid, value, this);
+		});
+
+		$(document).on('change', '.input-get-method', function () {
+			const value 	  	= $(this).val();
+			const tid 		  	= $(this).closest('.template-api').attr('__tid');
+			apiGetMethod(tid, value);
+		});
+
+		$(document).on('change', '.input-delete-method', function () {
+			const value 	  = $(this).val();
+			const tid 		  = $(this).closest('.template-api').attr('__tid');
+			apiDeleteMethod(tid, value);
+		});
+
+	});
+</script>
+
+

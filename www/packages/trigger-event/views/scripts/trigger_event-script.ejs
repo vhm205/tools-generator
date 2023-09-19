@@ -1,0 +1,421 @@
+<script>
+    $(document).ready(function () {
+		dragula([document.querySelector('#repeaterListFunctions')]);
+
+        const setInfoTemplateNoti = (templateTriggerEvent, infoFirstTemplate) => {
+            templateTriggerEvent.find('.input-field-function').val(infoFirstTemplate.funcID);
+            templateTriggerEvent.find('.text-module').html(infoFirstTemplate.moduleName);
+            templateTriggerEvent.find('.text-model').html(infoFirstTemplate.modelName);
+            templateTriggerEvent.find('.text-function').html(infoFirstTemplate.functionName);
+
+            switch (infoFirstTemplate.type) {
+                case 'MAIL':
+                    templateTriggerEvent.find('.label-noti-type').html(`<span class="badge badge-soft-success">Gửi Email</span>`);
+                    break;
+                case 'SMS':
+                    templateTriggerEvent.find('.label-noti-type').html(`<span class="badge badge-soft-warning">Gửi SMS</span>`);
+                    break;
+                case 'SOCKET':
+                    templateTriggerEvent.find('.label-noti-type').html(`<span class="badge badge-soft-danger">Gửi Socket</span>`);
+                    break;
+                case 'FCM':
+                    templateTriggerEvent.find('.label-noti-type').html(`<span class="badge badge-soft-info">Gửi cloud messaging</span>`);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        const createTemplateNotiFromFunc = functions => {
+            let htmlTemlateFunc = '';
+
+            for (const func of functions) {
+                const { _id, name } = func;
+                htmlTemlateFunc += `
+                    <option value="${_id}">${name}</option>
+                `;
+            }
+
+            const templateNoti = $('.template-notification.d-none');
+            templateNoti.find('.input-field-functions').html(htmlTemlateFunc);
+        }
+
+        const createEventNotiFromTemplates = dataTemplates => {
+            let htmlTemplateGroup = '';
+            let infoFirstTemplate = {};
+
+            for (const template of dataTemplates) {
+                const { moduleName, modelName, functionName, data } = template;
+                let htmlTemplate = '';
+
+                data.map(template => {
+                    if(!Object.keys(infoFirstTemplate).length) {
+                        console.log({ template })
+                        infoFirstTemplate = {
+                            moduleName: moduleName[0],
+                            modelName: modelName[0],
+                            functionName: functionName[0],
+                            funcID: template.func[0] && template.func[0]._id,
+                            type: template.type
+                        };
+                    }
+
+                    htmlTemplate += `<option value="${template._id}">${template.title}</option>`;
+                })
+
+                htmlTemplateGroup += `
+                    <optgroup label="${moduleName[0]} - ${modelName[0]} - ${functionName[0]}">
+                        ${htmlTemplate}
+                    </optgroup>
+                `;
+            }
+
+            const templateTriggerEvent = $('.template-trigger-event.d-none');
+            templateTriggerEvent.find('.input-field-template').html(htmlTemplateGroup);
+            setInfoTemplateNoti(templateTriggerEvent, infoFirstTemplate);
+        }
+
+        const checkExistsFunc = ({ module, model, func }) => {
+            return new Promise(async resolve => {
+                $.ajax({
+                    type: "post",
+                    url: "/admin/check-exists-function",
+                    data: { module, model, func },
+                }).done(resolve).fail(resolve);
+            })
+        }
+
+        $(document).on('change', '.input-field-module', function () {
+            const value             = $(this).val();
+            const templateField     = $(this).closest('div[data-repeater-item]');
+
+            templateField.find('.col-model').addClass('d-none');
+            templateField.find(`.select-module-${value}`).parent().removeClass('d-none');
+        });
+
+        $(document).on('change', '.input-field-is-module-config', function () {
+            const isChecked         = $(this).is(':checked');
+            const templateField     = $(this).closest('div[data-repeater-item]');
+            const moduleSelected    = templateField.find('.group-module-generate .input-field-module').val();
+            
+            if(isChecked) {
+                templateField.find('.group-module-config').removeClass('d-none');
+                templateField.find('.group-module-generate').addClass('d-none');
+                templateField.find('.col-model').addClass('d-none');
+            } else{
+                templateField.find('.group-module-config').addClass('d-none');
+                templateField.find('.group-module-generate').removeClass('d-none');
+                templateField.find(`.col-model .select-module-${moduleSelected}`).parent().removeClass('d-none');
+            }
+        });
+
+        $(document).on('change', '.rd-type-noti[type="radio"]', function () {
+            const value         = $(this).val();
+			const tid 			= $(this).closest('.template-notification').attr('__tid');
+			const templateField = $(`.template-notification[__tid=${tid}]`);
+
+            switch (value) {
+                case 'MAIL':
+                    templateField.find('.type-noti-other').addClass('d-none');
+                    templateField.find('.type-noti-mail').removeClass('d-none');
+                    break;
+                default:
+                    templateField.find('.type-noti-other').removeClass('d-none');
+                    templateField.find('.type-noti-mail').addClass('d-none');
+                    break;
+            }
+        });
+
+        $(document).on('click', '.btn-remove-field-meta', function () {
+			$(this).closest('.row-field-meta').remove();
+		});
+
+		$(document).on('click', '.btn-add-field-meta', function () {
+			const tid 				= $(this).closest('.template-notification').attr('__tid');
+			const templateField 	= $(`.template-notification[__tid=${tid}]`);
+			const fieldType 		= templateField.find('.input-field-type').val();
+			const templateFieldMeta = $('.row-field-meta.d-none').clone().removeClass('d-none');
+
+			templateField
+                .find('.row-field-meta:not(.d-none) .btn-add-field-meta')
+                .toggleClass('btn-add-field-meta btn-remove-field-meta')
+                .addClass('active btn-danger');
+
+            templateField.find('.wrapper-field-meta').append(templateFieldMeta);
+		});
+
+        $(document).on('change', '.input-field-template', function () {
+            const templateTriggerEvent = $(this).closest('div[data-repeater-item]');
+            const templateID = $(this).val();
+
+            $.ajax({
+                type: "GET",
+                url: `/admin/info-template?templateID=${templateID}`,
+            }).done(resp => {
+                if(!resp) return;
+
+                setInfoTemplateNoti(templateTriggerEvent, {
+                    moduleName: resp.func && resp.func.module,
+                    modelName: resp.func && resp.func.model,
+                    functionName: resp.func && resp.func.name,
+                    funcID: resp.func && resp.func._id,
+                    type: resp.type
+                });
+            }).fail(err => console.error(err))
+        });
+
+        /** 
+         * ======================
+         * ADD SOMETHING...
+         * ======================
+         */
+
+        $('.btn-add-function').on('click', function () {
+			const templateFunc = $('.template-function.d-none')
+				.clone()
+				.removeClass('d-none')
+				.attr('__tid', randomStringFixLengthCode(15));
+
+			$(`div[data-repeater-list="function"]`).append(templateFunc);
+		});
+
+        $('.btn-add-template').on('click', function () {
+            const tid = randomStringFixLengthCode(15);
+			const templateNoti = $('.template-notification.d-none')
+				.clone()
+				.removeClass('d-none')
+				.attr('__tid', tid);
+
+            templateNoti.find('.btn-edit-template').attr('data-bs-target', `#modal_${tid}`);
+            templateNoti.find('.modal-update-template-noti').attr('id', `modal_${tid}`);
+            templateNoti.find('.rd-type-noti[type="radio"]').attr('name', `type_${tid}`);
+            templateNoti.find('.input-content-mail').attr('id', `input_${tid}`);
+
+            const templateSelect = $('.template-select-module.d-none')
+                .clone()
+                .removeClass('d-none');
+
+            templateNoti.prepend(templateSelect);
+
+			$(`div[data-repeater-list="template-notification"]`).append(templateNoti);
+            initEditor(`#input_${tid}`);
+		});
+
+        $('.btn-add-event').on('click', function () {
+            const tid = randomStringFixLengthCode(15);
+			const templateTriggerEvent = $('.template-trigger-event.d-none')
+				.clone()
+				.removeClass('d-none')
+				.attr('__tid', tid);
+
+            templateTriggerEvent.find('.btn-edit-queue').attr('data-bs-target', `#modal_${tid}`);
+            templateTriggerEvent.find('.modal-edit-quueu').attr('id', `modal_${tid}`);
+            templateTriggerEvent.find('.rd-type-noti[type="radio"]').attr('name', `type_${tid}`);
+
+			$(`div[data-repeater-list="template-trigger-event"]`).append(templateTriggerEvent);
+		});
+
+        /** 
+         * ======================
+         * CREATE SOMETHING...
+         * ======================
+         */
+
+        $('.btn-create-functions').on('click', function () {
+            const listFunctions = [];
+
+            $('.template-function:not(.d-none)').each((index, elem) => {
+                const isModuleConfig = $(elem).find('.input-field-is-module-config').is(':checked');
+				const code = `${randomStringFixLengthCode(10)}`;
+
+                let module = '', model = '', func = '';
+
+                if(isModuleConfig) {
+                    module = $(elem).find('.group-module-config .input-field-module').val();
+                    model = $(elem).find(`.group-module-config .input-field-model`).val();
+                    func = $(elem).find('.group-module-config .input-field-function').val();
+                } else{
+                    module = $(elem).find('.group-module-generate .input-field-module').val();
+                    model = $(elem).find(`.col-model .input-field-model.select-module-${module}`).val();
+                    func = $(elem).find('.group-module-generate .input-field-function').val();
+                }
+
+                if(func && module && model){
+                    listFunctions[listFunctions.length] = {
+                        name: func, code, module, model
+                    }
+                }
+            });
+
+            if(!listFunctions.length){
+                return Swal.fire('Functions không hợp lệ', '', 'warning');
+            }
+
+            $.ajax({
+				type: "POST",
+				url: "/admin/insert-functions",
+				data: { functions: listFunctions }
+			}).done(resp => {
+				const { error, data, message } = resp;
+
+				if(error){
+					return Swal.fire(message, '', 'error');
+				}
+
+				Swal.fire('Tạo functions thành công', '', 'success');
+			}).fail(err => {
+				console.error(err);
+				Swal.fire(err.message, '', 'error');
+			})
+        });
+
+        $('.btn-create-template-noti').on('click', function () {
+            const listTemplates = [];
+
+            $('.template-notification:not(.d-none)').each((index, elem) => {
+				const tid       = $(elem).attr('__tid');
+				const title     = $(elem).find('.input-field-name').val();
+				const type      = $(elem).find('.rd-type-noti:checked').val();
+				const params    = $(elem).find('.input-params').val();
+                const meta      = {};
+                let module = '', model = '', func = '', content = '';
+
+                const isModuleConfig = $(elem).find('.input-field-is-module-config').is(':checked');
+                if(isModuleConfig) {
+                    module = $(elem).find('.group-module-config .input-field-module').val();
+                    model = $(elem).find(`.group-module-config .input-field-model`).val();
+                    func = $(elem).find('.group-module-config .input-field-function').val();
+                } else{
+                    module = $(elem).find('.group-module-generate .input-field-module').val();
+                    model = $(elem).find(`.col-model .input-field-model.select-module-${module}`).val();
+                    func = $(elem).find('.group-module-generate .input-field-function').val();
+                }
+
+                switch (type) {
+                    case 'MAIL':
+                        content = tinyMCE.get(`input_${tid}`).getContent();
+                        break;
+                    default:
+                        content = $(elem).find('.input-content').val();
+                        break;
+                }
+
+                $(elem).find('.wrapper-field-meta .row-field-meta').each((i, row) => {
+                    const title = $(row).find('.input-field-title-meta').val();
+                    const value = $(row).find('.input-field-value-meta').val();
+
+                    if(title && value){
+                        meta[title] = value;
+                    }
+                })
+
+                if(title && type && module && model && func){
+                    listTemplates[listTemplates.length] = {
+                        title, type, content, params, meta, module, model, func
+                    }
+                }
+            });
+
+            if(!listTemplates.length){
+                return Swal.fire('Templates không hợp lệ', '', 'warning');
+            }
+
+            $.ajax({
+				type: "POST",
+				url: "/admin/insert-templates",
+				data: { templates: listTemplates }
+			}).done(resp => {
+				const { error, data, message } = resp;
+
+				if(error){
+					return Swal.fire(message, '', 'error');
+				}
+
+                createEventNotiFromTemplates(data);
+				Swal.fire('Tạo template thành công', '', 'success');
+			}).fail(err => {
+				console.error(err);
+				Swal.fire(err.message, '', 'error');
+			})
+        });
+
+        $('.btn-create-event').on('click', function () {
+            const listEvents = [];
+
+            $('.template-trigger-event:not(.d-none)').each((index, elem) => {
+				const funcID        = $(elem).find('.input-field-function').val();
+				const templateID    = $(elem).find('.input-field-template').val();
+				const queueName     = $(elem).find('.input-queue-name').val();
+				const queueURL      = $(elem).find('.input-queue-url').val();
+
+                if(funcID && templateID){
+                    listEvents[listEvents.length] = {
+                        funcID, templateID, queueName, queueURL
+                    }
+                }
+            });
+
+            if(!listEvents.length){
+                return Swal.fire('Events không hợp lệ', '', 'warning');
+            }
+
+            $.ajax({
+				type: "POST",
+				url: "/admin/insert-events",
+				data: { events: listEvents }
+			}).done(resp => {
+				const { error, data, message } = resp;
+
+				if(error){
+					return Swal.fire(message, '', 'error');
+				}
+
+				Swal.fire('Tạo events thành công', '', 'success');
+			}).fail(err => {
+				console.error(err);
+				Swal.fire(err.message, '', 'error');
+			})
+        });
+
+        $('.btn-check-func').on('click', async function () {
+            const typeCheck = $(this).data('type');
+            const listFuncs = [];
+            let selector = '';
+
+            switch (typeCheck) {
+                case 'template':
+                    selector = '#repeaterListTemplatesNoti .template-notification';
+                    break;
+                case 'event':
+                    selector = '#repeaterListTriggerEvent .template-trigger-event';
+                default:
+                    break;
+            }
+
+            $(selector).each((_, elem) => {
+                const isModuleConfig = $(elem).find('.input-field-is-module-config').is(':checked');
+                let module = '', model = '', func = '';
+
+                if(isModuleConfig) {
+                    module = $(elem).find('.group-module-config .input-field-module').val();
+                    model = $(elem).find(`.group-module-config .input-field-model`).val();
+                    func = $(elem).find('.group-module-config .input-field-function').val();
+                } else{
+                    module = $(elem).find('.group-module-generate .input-field-module').val();
+                    model = $(elem).find(`.col-model .input-field-model.select-module-${module}`).val();
+                    func = $(elem).find('.group-module-generate .input-field-function').val();
+                }
+
+                listFuncs[listFuncs.length] = {
+                    elem, module, model, func
+                }
+            })
+
+            for (const { elem, module, model, func } of listFuncs) {
+                const result = await checkExistsFunc({ module, model, func });
+                result && $(elem).find('.checkmark').addClass('active');
+            }
+        });
+
+    });
+</script>

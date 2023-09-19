@@ -1,0 +1,296 @@
+<script>
+	$(document).ready(function () {
+
+		$('#tableListUser').DataTable({
+			'iDisplayLength': 25,
+			responsive: true,
+			...languageDataTable
+		});
+
+		let urlParams 		= new URLSearchParams(location.search);
+        let statusParam 	= urlParams.get('status');
+        let keywordParam 	= urlParams.get('keyword');
+		let userIDPrevious 	= '';
+
+		keywordParam && $('.input-search-text').val(keywordParam);
+        statusParam && $('#scStatusUser').val(statusParam);
+
+		$('#scStatusUser').on('change', function () {
+			const value = $(this).val();
+			changeQuery({
+				query: "status",
+				value,
+				url: `<%= CF_ROUTINGS_USER.LIST_USER %>`,
+				urlParams
+			})
+		});
+
+		$('.input-search-text').on('keypress', function (e) {
+			if(e.which === 13){
+				const value = $(this).val();
+				changeQuery({
+					query: "keyword",
+					value,
+					url: `<%= CF_ROUTINGS_USER.LIST_USER %>`,
+					urlParams
+				})
+			}
+		});
+
+		$('.btn-search-text').on('click', function () {
+			const value = $('.input-search-text').val();
+			changeQuery({
+				query: "keyword",
+				value,
+				url: `<%= CF_ROUTINGS_USER.LIST_USER %>`,
+				urlParams
+			})
+		});
+
+		let checkValidate = params => {
+            let { fullname, username, email, password, confirmPassword, status, type } = params;
+			let fieldsError = [];
+
+			if(type === 'CREATE'){
+				if(!fullname){
+					fieldsError = [...fieldsError, 'inputFullname'];
+					enableValidate('#inputFullname', 'Vui lòng nhập tên hiển thị');
+				} else{
+					disableValidate('#inputFullname');
+				}
+
+				if(!username || username.length < 4 || !validUserName(username)){
+					fieldsError = [...fieldsError, 'inputUsername'];
+					enableValidate('#inputUsername', 'Tên đăng nhập không hợp lệ, ít nhất 3 ký tự');
+				} else{
+					disableValidate('#inputUsername');
+				}
+
+				if(!validEmail(email)){
+					fieldsError = [...fieldsError, 'inputEmail'];
+					enableValidate('#inputEmail', 'Email không hợp lệ');
+				} else{
+					disableValidate('#inputEmail');
+				}
+
+				if(!password){
+					fieldsError = [...fieldsError, 'inputPassword'];
+					enableValidate('#inputPassword', 'Vui lòng nhập mật khẩu');
+				} else{
+					disableValidate('#inputPassword');
+				}
+
+				if(password !== confirmPassword || !confirmPassword){
+					fieldsError = [...fieldsError, 'inputRePassword'];
+					enableValidate('#inputRePassword', 'Xác nhận mật khẩu không khớp');
+				} else{
+					disableValidate('#inputRePassword');
+				}
+			}
+
+			if(type === 'UPDATE'){
+				if(!fullname){
+					fieldsError = [...fieldsError, 'inputFullnameUpdate'];
+					enableValidate('#inputFullnameUpdate', 'Vui lòng nhập tên hiển thị');
+				} else{
+					disableValidate('#inputFullnameUpdate');
+				}
+
+				if(!username || username.length < 4 || !validUserName(username)){
+					fieldsError = [...fieldsError, 'inputUsernameUpdate'];
+					enableValidate('#inputUsernameUpdate', 'Tên đăng nhập không hợp lệ, ít nhất 3 ký tự');
+				} else{
+					disableValidate('#inputUsernameUpdate');
+				}
+			}
+
+			if(fieldsError.length){
+				return { error: true, msg: 'Form không hợp lệ' };
+			}
+
+            return { error: false };
+        }
+
+		let getFormUser = ({ type = 'CREATE' }) => {
+			let fullname, username, email, password, repassword, role, status;
+
+			if(type === 'CREATE'){
+				fullname 	= $('#inputFullname').val().trim();
+				username 	= $('#inputUsername').val().trim();
+				email 		= $('#inputEmail').val().trim();
+				password 	= $('#inputPassword').val().trim();
+				repassword 	= $('#inputRePassword').val().trim();
+				role 		= $('#scUserRole').val();
+				status 		= $('#cbStatusUser').is(':checked') ? 1 : 2;
+			}
+
+			if(type === 'UPDATE'){
+				fullname 	= $('#inputFullnameUpdate').val().trim();
+				username 	= $('#inputUsernameUpdate').val().trim();
+				password 	= $('#inputPasswordUpdate').val().trim();
+				role 		= $('#scUserRoleUpdate').val();
+				status 		= $('#cbStatusUserUpdate').is(':checked') ? 1 : 2;
+			}
+
+            return { fullname, username, email, password, confirmPassword: repassword, role, status, type };
+        }
+
+		$(document).on('change', '.check-status', function() {
+            let userID = $(this).val();
+            let checked = $(this).is(':checked');
+
+            let status = 1;
+            if (!checked) {
+                status = 2;
+            }
+
+            $.ajax({
+                url: "/admin/update-admin",
+                method: 'POST',
+                data: { userID, status },
+                success: resp => {
+                    if (resp.error) {
+                        return AlertCustom({
+                            title: 'THÔNG BÁO',
+                            message: resp.message,
+                            icon: 'warning'
+                        });
+                    }
+
+                    AlertCustom({
+                        title: 'THÔNG BÁO',
+                        message: 'Thay đổi trạng thái thành công',
+                        icon: 'info'
+                    });
+                }
+            })
+        })
+
+		// ----------- CREATE USER ---------------
+
+		$('#btnConfirmCreateUser').on('click', function () {
+			const dataCreate 	 = getFormUser({});
+			const { error, msg } = checkValidate(dataCreate);
+			if(error){
+				return AlertCustom({ title: msg, icon: 'warning' });
+			}
+
+			$.ajax({
+				type: 'POST',
+				url: `<%= CF_ROUTINGS_USER.ADD_USER %>`,
+				data: dataCreate,
+			}).done(resp => {
+				const { error, message } = resp;
+
+				if(error){
+					return AlertCustom({ title: message, icon: 'warning' });
+				}
+
+				$('#modalCreateAdmin').modal('hide');
+				AlertCustom({ title: 'Tạo thành công', icon: 'success' });
+
+				setTimeout(() => location.reload(), 1000);
+			}).fail(err => AlertCustom({ title: err.message, icon: 'error' }))
+		});
+
+
+		// ----------- UPDATE USER ---------------
+		$('.btn-show-modal-update-user').on('click', function () {
+			const userID = $(this).attr('_userID');
+
+			if(userID !== userIDPrevious){
+				userIDPrevious = userID;
+
+				$.ajax({
+					type: 'GET',
+					url: `<%= CF_ROUTINGS_USER.INFO_USER %>?userID=${userID}`,
+				}).done(resp => {
+					const { error, message, data } = resp;
+
+					if(error){
+						return AlertCustom({ title: message, icon: 'warning' });
+					}
+
+					const { fullname, username, email, roles, status } = data;
+					$('#inputFullnameUpdate').val(fullname);
+					$('#inputUsernameUpdate').val(username);
+					$('#inputEmailUpdate').val(email);
+					$('#scUserRoleUpdate').val(roles[0] && roles[0]._id);
+					$('#cbStatusUserUpdate').prop('checked', status === 1);
+					$('#inputUpdatePassword').val('');
+					$('#btnConfirmUpdateUser').attr('_userID', userID);
+				}).fail(err => AlertCustom({ title: err.message, icon: 'error' }))
+			}
+
+			$('.modal-update-user').modal('show');
+		});
+
+		$('#btnConfirmUpdateUser').on('click', function () {
+			const userID 		 = $(this).attr('_userID');
+			const dataUpdate 	 = getFormUser({ type: 'UPDATE' });
+			const { error, msg } = checkValidate(dataUpdate);
+
+			if(error){
+				return AlertCustom({ title: msg, icon: 'warning' });
+			}
+
+			$.ajax({
+				type: "POST",
+				url: `<%= CF_ROUTINGS_USER.UPDATE_USER %>`,
+				data: { ...dataUpdate, userID }
+			}).done(resp => {
+				let { error, message } = resp;
+
+				if(error){
+					return AlertCustom({ title: message, icon: 'warning' });
+				}
+
+				$('.modal-update-user').modal('hide');
+				AlertCustom({ title: 'Cập nhật thành công', icon: 'success' })
+
+				setTimeout(() => location.reload(), 800);
+			}).fail(err => AlertCustom({ title: err.message, icon: 'error' }))
+		});
+
+
+		// ----------- DELETE USER ---------------
+		$('.btn-remove-user').on('click', async function () {
+			const userID = $(this).attr('_userID');
+
+			await ConfirmCustomAjax({
+                title: 'Bạn có chắc chắn xóa không, nếu xóa bạn không thể khôi phục?',
+                icon: 'question',
+                cb: result => {
+                    const { error, message } = result.value;
+
+                    if (error) {
+                        return AlertCustom({
+                            title: message,
+                            icon: 'warning'
+                        });
+                    }
+
+                    $(this).closest('tr').remove();
+                    AlertCustom({
+                        title: 'Xoá USER thành công',
+                        icon: 'success'
+                    });
+                },
+                preConfirm: () => {
+                    if (!userID) {
+                        return AlertCustom({
+                            title: 'Không thể xoá USER vui lòng thử reload lại trang',
+                            icon: 'warning'
+                        });
+                    }
+
+                    return $.ajax({
+                        type: "DELETE",
+                        url: `<%= CF_ROUTINGS_USER.DELETE_USER %>?userID=${userID}`,
+                    })
+                }
+            });
+		});
+
+	});
+</script>

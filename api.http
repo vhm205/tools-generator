@@ -1,0 +1,4 @@
+@hostname=http://localhost:5005
+
+GET {{hostname}}/test-api-base
+Content-Type: application/json

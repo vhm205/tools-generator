@@ -1,0 +1,317 @@
+<!-- TEMPLATE META FIELD -->
+<div class="col-sm-12 row-field-meta d-none">
+    <div class="input-group mb-3">
+        <button class="btn btn-secondary btn-add-field-meta" type="button">
+            <i class="fas fa-plus"></i>
+        </button>
+        <!-- <span class="input-group-text">😘</span> -->
+        <input type="text" class="form-control input-field-title-meta" placeholder="Thuộc tính">
+        <input type="text" class="form-control input-field-value-meta" placeholder="Giá trị">
+    </div>
+</div>
+
+<!-- TEMPLATE SELECT MODULE -> MODEL -> FUNCTION -->
+<div class="template-select-module d-none">
+    <div class="row">
+
+        <div class="col-3 group-module-config d-none">
+            <label class="form-label">Module</label>
+            <input type="text" class="form-control input-field-module" />
+        </div>
+
+        <div class="col-4 group-module-config d-none">
+            <label class="form-label">Model</label>
+            <input type="text" class="form-control input-field-model" />
+        </div>
+
+        <div class="col-4 group-module-config d-none">
+            <label class="form-label">Function</label>
+            <input type="text" class="form-control input-field-function" />
+        </div>
+
+        <div class="col-3 group-module-generate col-module">
+            <label class="form-label">Module</label>
+            <select class="form-select input-field-module">
+                <% if (listModules && listModules.length) { %>
+                    <% listModules.forEach(module => { %>
+                        <option value="<%= module.name %>"> <%= module.name %> </option>
+                    <% }) %>
+                <% } %>
+            </select>
+        </div>
+
+        <% if (listModules && listModules.length) { %>
+            <% listModules.forEach((module, index) => { %>
+                <div class="col-4 col-model <%= index !== 0 && 'd-none' %>">
+                    <label class="form-label">Model</label>
+                    <select class="form-select input-field-model select-module-<%= module.name %>">
+                        <% module.models.forEach(model => { %>
+                            <option value="<%= model.name %>"> <%= model.name %> </option>
+                        <% }) %>
+                    </select>
+                </div>
+            <% }) %>
+        <% } %>
+
+        <div class="col-4 group-module-generate col-function">
+            <label class="form-label">Function</label>
+            <select class="form-select input-field-function">
+                <option value="insert"> insert </option>
+                <option value="update"> update </option>
+                <option value="updateNotRequire"> updateNotRequire </option>
+                <option value="deleteById"> deleteById </option>
+                <option value="deleteByListId"> deleteByListId </option>
+                <option value="exportExcelCsv"> exportExcelCsv </option>
+                <option value="exportExcelDownload"> exportExcelDownload </option>
+                <option value="importExcel"> importExcel </option>
+            </select>
+        </div>
+
+        <div class="col-1 mt-4">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+            </svg>
+        </div>
+    </div>
+</div>
+
+<!-- TEMPLATE FUNCTION -->
+<div data-repeater-item="" class="template-function d-none">
+    <div class="row">
+
+        <div class="col-3 group-module-config d-none">
+            <label class="form-label">Module</label>
+            <input type="text" class="form-control input-field-module" />
+        </div>
+
+        <div class="col-4 group-module-config d-none">
+            <label class="form-label">Model</label>
+            <input type="text" class="form-control input-field-model" />
+        </div>
+
+        <div class="col-4 group-module-config d-none">
+            <label class="form-label">Function</label>
+            <input type="text" class="form-control input-field-function" />
+        </div>
+
+        <div class="col-3 group-module-generate col-module">
+            <label class="form-label">Module</label>
+            <select class="form-select input-field-module">
+                <% if (listModules && listModules.length) { %>
+                    <% listModules.forEach(module => { %>
+                        <option value="<%= module.name %>"> <%= module.name %> </option>
+                    <% }) %>
+                <% } %>
+            </select>
+        </div>
+
+        <% if (listModules && listModules.length) { %>
+            <% listModules.forEach((module, index) => { %>
+                <div class="col-4 col-model <%= index !== 0 ? 'd-none' : '' %>">
+                    <label class="form-label">Model</label>
+                    <select class="form-select input-field-model select-module-<%= module.name %>">
+                        <% module.models.forEach(model => { %>
+                            <option value="<%= model.name %>"> <%= model.name %> </option>
+                        <% }) %>
+                    </select>
+                </div>
+            <% }) %>
+        <% } %>
+
+        <div class="col-4 group-module-generate col-function">
+            <label class="form-label">Function</label>
+            <select class="form-select input-field-function">
+                <option value="insert"> insert </option>
+                <option value="update"> update </option>
+                <option value="updateNotRequire"> updateNotRequire </option>
+                <option value="deleteById"> deleteById </option>
+                <option value="deleteByListId"> deleteByListId </option>
+                <option value="exportExcelCsv"> exportExcelCsv </option>
+                <option value="exportExcelDownload"> exportExcelDownload </option>
+                <option value="importExcel"> importExcel </option>
+            </select>
+        </div>
+
+        <div class="col-1 mt-4">
+            <button data-repeater-delete="" class="btn btn-outline-danger">
+                <span class="far fa-trash-alt"></span>
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-check mt-2 ms-2">
+            <label class="form-check-label">
+                <input class="form-check-input input-field-is-module-config" type="checkbox">
+                Module config
+            </label>
+        </div>
+    </div>
+    <hr>
+</div>
+
+<!-- TEMPLATE TEMPLATE NOTIFICATION -->
+<div data-repeater-item="" class="template-notification d-none">
+    <div class="form-group row">
+
+        <div class="col-4 mt-3">
+            <label class="form-label">Tên template</label>
+            <input type="text" class="form-control input-field-name" />
+        </div>
+
+        <div class="col-3" style="margin-top: 50px;">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-module-config" type="checkbox">
+                    Module config
+                </label>
+            </div>
+        </div>
+
+        <div class="col-3" style="margin-top: 40px;">
+            <button class="btn btn-outline-primary btn-edit-template" data-bs-toggle="modal" data-bs-target="#exampleModalSmall">
+                <span class="fas fa-edit"></span>
+            </button>
+            <button data-repeater-delete="" class="btn btn-outline-danger">
+                <span class="far fa-trash-alt"></span>
+            </button>
+        </div>
+
+        <!-- MODAL CREATE TEMPLATE NOTIFICATION -->
+        <div class="modal fade bs-example-modal-sm modal-update-template-noti" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title">Mẫu thông báo</h6>
+                    </div>
+                    <div class="card-body">
+
+                        <h5>Loại thông báo</h5>
+
+                        <label class="checkbox-inline mb-2 me-2">
+                            <input class="form-check-input rd-type-noti" type="radio" name="rdTypeNoti" value="MAIL">
+                            Mail
+                        </label>
+                        <label class="checkbox-inline mb-2 me-2">
+                            <input class="form-check-input rd-type-noti" type="radio" name="rdTypeNoti" value="SMS" checked>
+                            SMS
+                        </label>
+                        <label class="checkbox-inline mb-2 me-2">
+                            <input class="form-check-input rd-type-noti" type="radio" name="rdTypeNoti" value="FCM">
+                            FCM
+                        </label>
+                        <label class="checkbox-inline mb-2 me-2">
+                            <input class="form-check-input rd-type-noti" type="radio" name="rdTypeNoti" value="SOCKET">
+                            Socket
+                        </label>
+                        <label class="checkbox-inline mb-2 me-2">
+                            <input class="form-check-input rd-type-noti" type="radio" name="rdTypeNoti" value="ZALO_ZNS">
+                            Zalo ZNS
+                        </label>
+
+                        <div class="type-noti-other">
+                            <h5>Nội dung thông báo</h5>
+                            <textarea class="form-control input-content" cols="20" rows="5"></textarea>
+                        </div>
+
+                        <div class="d-none type-noti-mail">
+                            <h5>Nội dung mail</h5>
+                            <textarea class="form-control input-content-mail" cols="20" rows="5"></textarea>
+                        </div>
+
+                        <h5>Params</h5>
+                        <textarea class="form-control input-params" cols="20" rows="1"></textarea>
+
+                        <h5>Meta</h5>
+                        <div class="row mt-3 wrapper-field-meta">
+                            <div class="col-sm-12 row-field-meta">
+                                <div class="input-group mb-3">
+                                    <button class="btn btn-secondary btn-danger btn-add-field-meta" type="button">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <input type="text" class="form-control input-field-title-meta" placeholder="Thuộc tính">
+                                    <input type="text" class="form-control input-field-value-meta" placeholder="Giá trị">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-soft-primary waves-effect waves-light me-1" data-bs-dismiss="modal">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <hr>
+</div>
+
+<!-- TEMPLATE EVENT -->
+<div data-repeater-item="" class="template-trigger-event d-none">
+    <div class="form-group row">
+
+        <div class="col-4">
+            <label class="form-label">Template notification</label>
+            <select class="form-select input-field-template">
+            </select>
+        </div>
+
+        <input type="hidden" class="input-field-function">
+
+        <div class="col-2">
+            <label class="form-label d-block">Loại Noti</label>
+            <label class="form-label d-block label-noti-type"></label>
+        </div>
+
+        <div class="col-4">
+            <label class="form-label d-block">Thông tin: </label>
+            <label class="form-label d-block">Module: <span class="text-module"></span> </label>
+            <label class="form-label d-block">Model: <span class="text-model"></span> </label>
+            <label class="form-label d-block">Function: <span class="text-function"></span> </label>
+        </div>
+
+        <!-- MODAL UPDATE QUEUE EVENT -->
+        <div class="modal fade bs-example-modal-sm modal-edit-quueu" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title">Cập nhật Queue</h6>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" style="width: 98px;">Queue Name</span>
+                            <input type="text" class="form-control input-queue-name" placeholder="">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" style="width: 98px;">Queue URL</span>
+                            <input type="text" class="form-control input-queue-url" placeholder="">
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-soft-primary waves-effect waves-light me-1" data-bs-dismiss="modal">
+                                Đóng
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-2 d-flex justify-content-end" style="margin-top: 25px">
+            <!-- <button class="btn btn-outline-primary btn-edit-queue" data-bs-toggle="modal" data-bs-target="#exampleModalSmall">
+                <span class="fas fa-edit"></span>
+            </button> -->
+            <button data-repeater-delete="" class="btn btn-outline-danger">
+                <span class="far fa-trash-alt"></span> 
+            </button>
+        </div>
+
+    </div>
+    <hr>
+</div>

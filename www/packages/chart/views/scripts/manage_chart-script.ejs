@@ -1,0 +1,712 @@
+<script>
+	$(document).ready(function () {
+		
+		// $.ajax({
+		// 	url: '/admin/info-chart?name=chart_2',
+		// 	method: 'POST',
+		// 	data: {},
+		// 	success: resp => {
+		// 		console.log({
+		// 			resp
+		// 		});
+		// 		if (!resp.error) {
+		// 			// let data = [];
+		// 			// let categories = [];
+		// 			// resp.data && resp.data.length && resp.data.map(item => {
+		// 			// 	data = [
+		// 			// 		...data,
+		// 			// 		item.count
+		// 			// 	];
+
+		// 			// 	categories = [
+		// 			// 		...categories,
+		// 			// 		item._id[resp.infoChart.data_source_obj.label[0]]
+		// 			// 	];
+		// 			// });
+				
+		// 			// var options = {
+		// 			// 	series: [{
+		// 			// 		data: data
+		// 			// 	}],
+		// 			// 	chart: {
+		// 			// 		type: 'bar',
+		// 			// 		height: 350
+		// 			// 	},
+		// 			// 	plotOptions: {
+		// 			// 		bar: {
+		// 			// 			borderRadius: 4,
+		// 			// 			horizontal: true,
+		// 			// 		}
+		// 			// 	},
+		// 			// 	dataLabels: {
+		// 			// 		enabled: false
+		// 			// 	},
+		// 			// 	xaxis: {
+		// 			// 		categories: categories,
+		// 			// 	}
+		// 			// };
+
+		// 			// var chart = new ApexCharts(document.querySelector("#apex_bar"), options);
+        // 			// chart.render();
+
+		// 			let { infoChart, data: dataOfChart } = resp;
+		// 			console.log({
+		// 				infoChart
+		// 			});
+		// 			let data       = [];
+		// 			let categories = [];
+		// 			dataOfChart && dataOfChart.length && dataOfChart.map(item => {
+		// 				data = [
+		// 					...data,
+		// 					item.count
+		// 				];
+
+		// 				let stringDateParse = `${item._id.year}`;
+        //                 switch (infoChart.data_source_obj.timeframe) {
+        //                     case 'DAY':
+		// 						stringDateParse += `-${item._id.month}-${item._id.day}`;
+        //                         break;
+        //                     case 'WEEK':
+                                
+        //                         break;
+        //                     case 'MONTH':
+		// 						stringDateParse += `-${item._id.month}`;
+        //                         break;
+        //                     default:
+        //                         break;
+        //                 }
+		// 				let dateParse = moment(new Date(stringDateParse)).format();
+		// 				console.log({
+		// 					dateParse,
+		// 					stringDateParse
+		// 				});
+		// 				categories = [
+		// 					...categories,
+		// 					dateParse
+		// 				];
+		// 			});
+					
+		// 			// var options = {
+		// 			// 	series: [{
+		// 			// 	name: infoChart.description,
+		// 			// 	data: data
+		// 			// }
+		// 			// // , {
+		// 			// // 	name: 'series2',
+		// 			// // 	data: [11, 32, 45, 32, 34, 52, 41]
+		// 			// // 	}
+		// 			// ],
+		// 			// 	chart: {
+		// 			// 	height: 350,
+		// 			// 	type: 'area'
+		// 			// },
+		// 			// dataLabels: {
+		// 			// 	enabled: false
+		// 			// },
+		// 			// stroke: {
+		// 			// 	curve: 'smooth'
+		// 			// },
+		// 			// xaxis: {
+		// 			// 	type: 'datetime',
+		// 			// 	categories,
+		// 			// },
+		// 			// tooltip: {
+		// 			// 	x: {
+		// 			// 		format: 'dd/MM/yy HH:mm'
+		// 			// 	},
+		// 			// },
+		// 			// };
+
+		// 			// var chart = new ApexCharts(document.querySelector("#apex_bar"), options);
+		// 			// chart.render();
+
+
+
+		// 			// var options = {
+		// 			// 	series: [{
+		// 			// 	name: infoChart.description,
+		// 			// 	data: data
+		// 			// }, 
+		// 			// // {
+		// 			// // 	name: 'Revenue',
+		// 			// // 	data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
+		// 			// // }, {
+		// 			// // 	name: 'Free Cash Flow',
+		// 			// // 	data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
+		// 			// // }
+		// 			// ],
+		// 			// 	chart: {
+		// 			// 	type: 'bar',
+		// 			// 	height: 350
+		// 			// },
+		// 			// 	plotOptions: {
+		// 			// 	bar: {
+		// 			// 		horizontal: false,
+		// 			// 		columnWidth: '55%',
+		// 			// 		endingShape: 'rounded'
+		// 			// 	},
+		// 			// },
+		// 			// 	dataLabels: {
+		// 			// 	enabled: false
+		// 			// },
+		// 			// 	stroke: {
+		// 			// 	show: true,
+		// 			// 	width: 2,
+		// 			// 	colors: ['transparent']
+		// 			// },
+		// 			// 	xaxis: {
+		// 			// 	categories
+		// 			// 	// categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+		// 			// },
+		// 			// 	yaxis: {
+		// 			// 	title: {
+		// 			// 		text: '$ (thousands)'
+		// 			// 	}
+		// 			// },
+		// 			// 	fill: {
+		// 			// 	opacity: 1
+		// 			// },
+		// 			// 	tooltip: {
+		// 			// 		y: {
+		// 			// 			formatter: function (val) {
+		// 			// 				return "$ " + val + " thousands"
+		// 			// 			}
+		// 			// 		}
+		// 			// 	}
+		// 			// };
+
+		// 			// var chart = new ApexCharts(document.querySelector("#apex_bar"), options);
+		// 			// chart.render();
+				
+		// 			var options = {
+		// 				series: [{
+		// 					name: "Desktops",
+		// 					data,
+		// 					// data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
+		// 				}],	
+		// 				chart: {
+		// 					height: 350,
+		// 					type: 'line',
+		// 					zoom: {
+		// 						enabled: false
+		// 					}
+		// 				},
+		// 				dataLabels: {
+		// 					enabled: false
+		// 				},
+		// 				stroke: {
+		// 					curve: 'straight'
+		// 				},
+		// 				title: {
+		// 					text: 'Product Trends by Month',
+		// 					align: 'left'
+		// 				},
+		// 				grid: {
+		// 					row: {
+		// 						colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+		// 						opacity: 0.5
+		// 					},
+		// 				},
+		// 				xaxis: {
+		// 					categories,
+		// 					// categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+		// 				}
+		// 			};
+
+		// 			var chart = new ApexCharts(document.querySelector("#apex_bar"), options);
+		// 			chart.render();
+		// 		}
+		// 	}
+		// });
+
+		// FUNCTION: CHỌN LOẠI CHART HIỂN THỊ
+		$(document).on('click', '.c-chart-type-choice', function() {
+			let type = $(this).attr('_type');
+
+			$('.input-data-source').removeClass('d-none');
+			$('.type-chart').addClass('d-none');
+			$(`.${type}`).removeClass('d-none');
+			$('.c-chart-type-choice').removeClass('c-chart-type-choice--active');
+			$(this).addClass('c-chart-type-choice--active');
+			$('.btn-simple').trigger('click');
+		});
+
+		// FUNCTION: CHỌN LOẠI LẤY DỮ LIỆU
+		$(document).on('click', '.btn-check', function() {
+			let value = $(this).val();
+			
+			$('.input-choose-data-source').addClass('d-none');
+			switch (value) {
+				case 'SIMPLE':
+					$('.input-simple').removeClass('d-none');
+					break;
+				case 'QUERY':
+					$('.input-query').removeClass('d-none');
+					break;
+				case 'API':
+					$('.input-api').removeClass('d-none');
+					break;
+				default:
+					break;
+			}
+		});
+
+		// $('.input-label').select2({
+		// 	dropdownParent: $('.input-simple'),
+		// 	width: '100%'
+		// })
+		// FUNCTION: CHỌN LOẠI LẤY COLLECTION
+		$(document).on('change', '.input-collection', function() {
+			let collection     = $(this).val();
+			let type           = $('.c-chart-type-choice--active').attr('_type');
+			let collectionName = $(this).find('option:selected').text();
+		
+			$.ajax({
+				url: `/list-field-by-coll?name=${collectionName}`,
+				method: 'GET',
+				success: resp => {
+				
+					if (!resp.error) {
+						let option = '<option value="">Chọn Label</option>';
+						// let optionFieldMapRelationship = '<option value="">Chọn Field Map Relationship</option>';
+						resp.listFields && resp.listFields.length && resp.listFields.map(item => {
+							option += `<option value="${item.name}" _id = "${item._id}">${item.note}</option>`;
+							// optionFieldMapRelationship += `<option value="${item.name}" _id = "${item._id}">${item.note}</option>`;
+						});
+						
+						$(`.${type}`).find('.input-label').empty();
+						$(`.${type}`).find('.input-label').append(option);
+
+						// $(`.${type}`).find('.input-field-map-relationship').empty();
+						// $(`.${type}`).find('.input-field-map-relationship').append(optionFieldMapRelationship);
+					}
+				}
+			});
+		});
+
+		// FUNCTION: CHỌN LOẠI LẤY RELATIONSHIP
+		$(document).on('change', '.input-relationship', function() {
+			let collection     = $(this).val();
+			let type           = $('.c-chart-type-choice--active').attr('_type');
+			let collectionName = $(this).find('option:selected').text();
+			
+			$.ajax({
+				url: `/list-field-by-coll?name=${collectionName}`,
+				method: 'GET',
+				success: resp => {
+					if (!resp.error) {
+						let option = '<option value="">Chọn Field Map Between Relationship And Collection</option>';
+						resp.listFields && resp.listFields.length && resp.listFields.map(item => {
+							option += `<option value="${item.name}" _id = "${item._id}">${item.note}</option>`;
+						});
+						$(`.${type}`).find('.input-field-map-between-relationship-and-collection').empty();
+						$(`.${type}`).find('.input-field-map-between-relationship-and-collection').append(option);
+					}
+				}
+			});
+		});
+
+		// FUNCTION: CHỌN LOẠI LẤY VIEW
+		$(document).on('change', '.input-view', function() {
+			let view           = $(this).val();
+			let type           = $('.c-chart-type-choice--active').attr('_type');
+			let collectionName = $(`.${type}`).find('.input-choose-data-source:not(.d-none) .input-relationship option:selected').text();
+			
+			if (view == "SUM") {
+				$.ajax({
+					url: `/list-field-by-coll?name=${collectionName}`,
+					method: 'GET',
+					success: resp => {
+						if (!resp.error) {
+							let option = '<option value="">Chọn Value</option>';
+							resp.listFields && resp.listFields.length && resp.listFields.map(item => {
+								option += `<option value="${item.name}" _id = "${item._id}">${item.note}</option>`;
+							});
+							$(`.${type}`).find('.input-value').empty();
+							$(`.${type}`).find('.input-value').append(option);
+						}
+					}
+				});
+			} else {
+				let option = '<option value="">Chọn Value</option>';
+				$(`.${type}`).find('.input-value').empty();
+				$(`.${type}`).find('.input-value').append(option);
+			}
+		});
+
+		// FUNCTION: CHỌN FIELD GROUP BY - TIME_BASED
+		$(document).on('change', '.input-collection-time-based', function() {
+			let collection     = $(this).val();
+			let type           = $('.c-chart-type-choice--active').attr('_type');
+			let collectionName = $(`.${type}`).find('.input-relationship option:selected').text();
+			
+			$.ajax({
+				url: `/list-field-by-coll?name=${collectionName}`,
+				method: 'GET',
+				success: resp => {
+					if (!resp.error) {
+						let option = '<option value="">Chọn Field Group By</option>';
+						resp.listFields && resp.listFields.length && resp.listFields.map(item => {
+							option += `<option value="${item.name}" _id = "${item._id}">${item.note}</option>`;
+						});
+						$(`.${type}`).find('.input-group-by').empty();
+						$(`.${type}`).find('.input-group-by').append(option);
+					}
+				}
+			});
+		});
+
+		function getValueByTypeChart({
+			type,
+			TYPE_NAME,
+			data_source
+		}) {
+			switch (data_source) {
+				case 'SIMPLE':
+					let data = {};
+					const view	        = $(`.${type}`).find('.input-view').val();
+					const value	        = $(`.${type}`).find('.input-value').val();
+
+					switch (TYPE_NAME) {
+						case 'LEADERBOARD':
+							const coll_leaderboard = $(`.${type}`).find('.input-simple .input-collection').val();
+							const label		    = $(`.${type}`).find('.input-simple .input-label').val();
+
+							let listLabelName = [];
+							$(`.${type}`).find('.input-simple .input-label option:selected').each((i, elem) => {
+								const label_name	= $(elem).text();
+								listLabelName = [
+									...listLabelName,
+									label_name
+								];
+							});
+
+							const relationship	= $(`.${type}`).find('.input-simple .input-relationship').val();
+							const relationship_mapping	= $(`.${type}`).find('.input-simple .input-field-map-between-relationship-and-collection').val();
+							const limit      	= $(`.${type}`).find('.input-simple .input-limit').val();
+
+							data = {
+								coll: coll_leaderboard,
+								label,
+								relationship,
+								limit,
+								relationship_mapping,
+								label_name: listLabelName
+							}
+							break;
+						case 'TIME_BASED':
+							const coll_time_based = $(`.${type}`).find('.input-relationship' ).val();
+							const group_by		= $(`.${type}`).find('.input-group-by').val();
+							const timeframe	    = $(`.${type}`).find('.input-time-frame').val();
+							data = {
+								coll: coll_time_based,
+								group_by,
+								timeframe
+							}
+							break;
+						default:
+							break;
+					}
+
+					return {
+						...data,
+						// coll,
+						view,
+						value,
+					}
+					break;
+				case 'QUERY':
+					switch (TYPE_NAME) {
+						case 'LEADERBOARD':
+							let  query	                = $(`.${type}`).find('.input-query-db').val();
+							const relationship_query	= $(`.${type}`).find('.input-query .input-relationship').val();
+							const coll_query            = $(`.${type}`).find('.input-query .input-collection').val();
+							const label_query           = $(`.${type}`).find('.input-query .input-label').val();
+							let limit = 10;
+
+							if (query) {
+								let query_parse = JSON.parse(query);
+								query_parse.map(item => {
+									if (item.$limit) {
+										limit = item.$limit;
+									}
+								});
+							}
+							
+							return {
+								query,
+								relationship: relationship_query,
+								coll: coll_query,
+								label: label_query,
+								limit
+							}
+							break;
+						case 'TIME_BASED':
+							const coll_time_based  = $(`.${type}`).find('.input-query .input-collection' ).val();
+							const query_time_based = $(`.${type}`).find('.input-query .input-query-db').val();
+							let jsonParse = JSON.parse(query_time_based);
+							console.log({
+								jsonParse
+							});
+							return {
+								coll: coll_time_based,
+								query: query_time_based
+							}
+							break;
+						default:
+							break;
+					}
+					
+					// $('.input-simple').removeClass('d-none');
+					break;
+				case 'API':
+					const api	            = $(`.${type}`).find('.input-api-url').val();
+					const relationship_api	= $(`.${type}`).find('.input-api .input-relationship').val();
+					const coll_api          = $(`.${type}`).find('.input-api .input-collection').val();
+					const label_api         = $(`.${type}`).find('.input-api .input-label').val();
+					console.log({
+						relationship_api,
+						label_api,
+						coll_api
+					});
+					return {
+						api,
+						relationship: relationship_api,
+						label: label_api,
+						coll: coll_api,
+					}
+					break;
+				default:
+					break;
+			}
+		}
+
+		function getTypeChart(type) {
+			switch (type) {
+				case 'type-chart-leaderboard':
+					return 'LEADERBOARD';
+					break;
+				case 'type-chart-time-based':
+					return 'TIME_BASED';
+					break;
+				default:
+					return null;
+					break;
+			}
+		}
+		
+		function getData() {
+			let name         = $('.input-chart-name').val();
+			let description  = $('.input-chart-description').val();
+			let col          = $('.input-col-show').val();
+			let format_chart = $('.input-format-chart').val();
+
+			let type        = $('.c-chart-type-choice--active').attr('_type');
+			const TYPE_NAME = getTypeChart(type);
+			let data_source = $('.btn-check:checked').val();
+			let data        = getValueByTypeChart({
+				type,
+				TYPE_NAME,
+				data_source
+			});
+			
+			return {
+				name,
+				description,
+				col,
+				format_chart,
+				type,
+				TYPE_NAME,
+				data_source,
+				conditionDataSource: data
+			}
+		}
+
+		function validationData(data) {
+			let {
+				name,
+				description,
+				type,
+				TYPE_NAME,
+				data_source,
+				conditionDataSource
+			} = data;
+
+			if (!name) return { error: true, msg: 'Mời bạn nhập Tên Chart' };
+			if (!description) return { error: true, msg: 'Mời bạn nhập Mô tả Chart' };
+			if (!TYPE_NAME) return { error: true, msg: 'Mời bạn chọn Loại Chart' };
+			if (!data_source) return { error: true, msg: 'Mời bạn chọn Loại Data Source' };
+			
+			
+			switch (data_source) {
+				case 'SIMPLE':
+					let {
+						coll,
+						view,
+						value,
+					} = conditionDataSource;
+					if (!coll) return { error: true, msg: 'Mời bạn chọn Collection' };
+					if (!view) return { error: true, msg: 'Mời bạn chọn View' };
+					// if (!value) return { error: true, msg: 'Mời bạn chọn Value' };
+
+					switch (TYPE_NAME) {
+						case 'LEADERBOARD':
+							let {
+								label,
+								relationship,
+								limit
+							} = conditionDataSource;
+							if (!label) return { error: true, msg: 'Mời bạn chọn Field hiển thị' };
+							if (!relationship) return { error: true, msg: 'Mời bạn chọn Relationship' };
+							if (!limit) return { error: true, msg: 'Mời bạn nhập Limit' };
+							
+							break;
+						case 'TIME_BASED':
+							let {
+								group_by,
+								timeframe
+							} = conditionDataSource;
+							
+							if (!group_by) return { error: true, msg: 'Mời bạn chọn Group By' };
+							if (!timeframe) return { error: true, msg: 'Mời bạn chọn Timeframe' };
+
+							break;
+						default:
+							break;
+					}
+					
+					break;
+				case 'QUERY':
+
+					switch (TYPE_NAME) {
+						case 'LEADERBOARD':
+							let {
+								query,
+								relationship: relationship_query,
+								coll:         coll_query,
+							} = conditionDataSource;
+							if (!query) return { error: true, msg: 'Mời bạn nhập Query' };
+							if (!relationship_query) return { error: true, msg: 'Mời bạn chọn Relationship' };
+							if (!coll_query) return { error: true, msg: 'Mời bạn chọn Collection' };
+							let jsonParse_leaderboard = JSON.parse(query);
+							if (!jsonParse_leaderboard) return { error: true, msg: 'Aggregate không hợp lệ' };
+
+							break;
+						case 'TIME_BASED':
+							let {
+								query: query_time_based,
+								coll:  coll_time_based,
+							} = conditionDataSource;
+							if (!query_time_based) return { error: true, msg: 'Mời bạn nhập Query' };
+							if (!coll_time_based) return { error: true, msg: 'Mời bạn chọn Collection' };
+							let jsonParse_time_based = JSON.parse(query_time_based);
+							if (!jsonParse_time_based) return { error: true, msg: 'Aggregate không hợp lệ' };
+							
+							break;
+						default:
+							break;
+					}
+					
+					break;
+				case 'API':
+					let {
+						api
+					} = conditionDataSource;
+					if (!api) return { error: true, msg: 'Mời bạn nhập API' };
+
+					break;
+				default:
+					break;
+			}
+
+			return { error: false, msg: 'Done' };
+		}
+
+		let arrChart = [];
+		$('#btnGenerateChart').on('click', function () {
+			try {
+				let data = getData();
+				let validation = validationData(data);
+				if (validation.error) {
+					return Swal.fire(validation.msg, '', 'warning');
+				}
+
+				console.log({
+					data
+				});
+				arrChart = [
+					...arrChart,
+					data
+				];
+				$('.generate-chart-text').text("(" + arrChart.length + ")");
+
+				return AlertCustom({
+					title: 'THÔNG BÁO',
+					message: 'Bạn đã thêm Chart thành công',
+					icon: 'success'
+				});
+			} catch (error) {
+				console.log({
+					error
+				});
+				return AlertCustom({
+					title: 'THÔNG BÁO',
+					message: error.message,
+					icon: 'error'
+				});
+			}
+		});
+
+		$('.btn-generate-charts').on('click', function () {
+			let name        = $('.input-name').val();
+			let description = $('.input-description').val();
+			let folderName  = $('.input-folder').val();
+			let pathSave    = $('.input-path-save').val();
+			if (!name) {
+				return Swal.fire('Mời bạn nhập Tên thống kê', '', 'warning');
+			}
+			if (!description) {
+				return Swal.fire('Mời bạn nhập Mô tả thống kê', '', 'warning');
+			}
+			if (!folderName) {
+				return Swal.fire('Mời bạn nhập Tên Folder', '', 'warning');
+			}
+
+			if (!pathSave) {
+				return Swal.fire('Mời bạn nhập Đường dẫn', '', 'warning');
+			}
+
+			if (!arrChart.length) {
+				return Swal.fire('Mời bạn Tạo Chart', '', 'warning');
+			}
+
+			$.ajax({
+				url: '/admin/add-manage-chart',
+				method: 'POST',
+				data: {
+					name,
+					description,
+					folderName,
+					pathSave,
+					arrChart,
+				}, 
+				success: resp => {
+					console.log({
+						resp
+					});
+					if (resp.error) {
+						return Swal.fire(resp.message, '', 'error');
+					} else {
+						setTimeout(() => location.reload(), 1000);
+						return AlertCustom({
+							title: 'THÔNG BÁO',
+							message: 'Bạn đã thêm thống kê thành công',
+							icon: 'success'
+						});
+					}
+				}
+			})
+		});
+
+	});
+</script>

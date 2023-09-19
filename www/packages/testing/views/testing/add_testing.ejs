@@ -1,0 +1,168 @@
+<style>
+    .dataTables_filter {
+        display: none;
+    }
+
+    .select2-container {
+        margin-right: 1rem;
+    }
+
+    .dataTables_empty {
+        display: none;
+    }
+</style>
+<!-- Page Content-->
+<div class="page-content">
+    <div class="container-fluid">
+        <!-- Page-Title -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-title-box">
+                    <div class="row">
+                        <div class="col">
+                            <h4 class="page-title">Thêm mới Testing</h4>
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/home">Trang chủ</a></li>
+                                <li class="breadcrumb-item"><a href="/testing/list-testing">Quản lý Testing</a></li>
+                                <li class="breadcrumb-item active">Tạo mới</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-12 col-sm-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Thông tin chính</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                Bộ sưu tập <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="box-order-line d-flex flex-wrap">
+                                <% for(let index = 0; index < 8; index++) { %>
+
+                                <div class="box-dropzone-file dropzone-images no-file d-flex justify-content-center">
+                                    <div class="box-drag-and-drop d-flex justify-content-center align-items-center p-2" id="boxDropzoneFile-<%= index %>" data-index="<%= index %>">
+                                        <span> <i class="fas fa-plus"></i> </span>
+                                    </div>
+
+                                    <div class="box-preview-image d-none">
+                                        <img src="https://ath2.unileverservices.com/wp-content/uploads/sites/4/2020/02/IG-annvmariv-1024x1016.jpg" alt="File" class="img-fluid me-3">
+
+                                        <div class="edit-image">
+                                            <a href="javascript:void(0)" class="btn-edit-image">
+                                                <i class="fas fa-tools"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" class="btn-remove-image">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="box-processing-upload-file align-items-center justify-content-center p-2 d-none">
+                                        <div class="progress">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                Bộ sưu tập 2 <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="box-order-line d-flex flex-wrap">
+                                <% for(let index = 10; index < 18; index++) { %>
+
+                                <div class="box-dropzone-file dropzone-images2 no-file d-flex justify-content-center">
+                                    <div class="box-drag-and-drop d-flex justify-content-center align-items-center p-2" id="boxDropzoneFile-<%= index %>" data-index="<%= index %>">
+                                        <span> <i class="fas fa-plus"></i> </span>
+                                    </div>
+
+                                    <div class="box-preview-image d-none">
+                                        <img src="https://ath2.unileverservices.com/wp-content/uploads/sites/4/2020/02/IG-annvmariv-1024x1016.jpg" alt="File" class="img-fluid me-3">
+
+                                        <div class="edit-image">
+                                            <a href="javascript:void(0)" class="btn-edit-image">
+                                                <i class="fas fa-tools"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" class="btn-remove-image">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="box-processing-upload-file align-items-center justify-content-center p-2 d-none">
+                                        <div class="progress">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="testing__price">
+                                Giá <span class="text-danger">(*)</span>
+                            </label>
+                            <input type="text" class="form-control" id="testing__price" placeholder="Nhập giá">
+                            <ul class="parsley-errors-list">
+                                <li class="parsley-required">This value is required.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-4">
+
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Hình ảnh</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="form-group">
+                            <label class="form-label" for="testing__avatar">
+                                Hình ảnh <span class="text-danger">(*)</span>
+                            </label>
+                            <input type="file" id="testing__avatar" data-max-file-size="10M" data-height="100" />
+                            <ul class="parsley-errors-list">
+                                <li class="parsley-required">This value is required.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+
+
+
+            </div>
+
+        </div>
+
+    </div> <!-- container -->
+
+    <div class="container-fluid container-button-bottom border-top pt-3 position-fixed">
+        <div class="row">
+            <div class="col-12 text-end mb-3">
+                <button type="button" class="btn btn-soft-primary px-4" id="btnConfirmAdd">
+                    Tạo mới
+                </button>
+                <a href="/testing/list-testing" class="btn btn-soft-danger px-4">
+                    Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </div>

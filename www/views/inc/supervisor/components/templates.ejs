@@ -1,0 +1,767 @@
+<!-- TEMPLATE ENUM FIELD -->
+<div class="col-sm-12 row-field-enum d-none">
+    <div class="input-group mb-3">
+        <button class="btn btn-secondary btn-add-field-enum" type="button">
+            <i class="fas fa-plus"></i>
+        </button>
+        <!-- <span class="input-group-text">😘</span> -->
+        <input type="text" class="form-control input-field-title-enum" placeholder="Tiêu đề">
+        <input type="text" class="form-control input-field-value-enum" placeholder="Giá trị">
+        <input type="color" class="form-control form-control-color input-field-color-enum" value="#0b51b7" title="Choose your color">
+    </div>
+</div>
+
+<!-- TEMPLATE CONDITION FIELD -->
+<div class="col-sm-12 row-condition-field mb-3 d-none">
+    <div class="line-condition position-relative mb-2">
+        <div class="type-condition" data-type-condition="&&">
+            <span class="badge badge-soft-primary">AND</span>
+        </div>
+    </div>
+    <div class="input-group">
+        <button class="btn btn-secondary btn-add-condition-field" type="button">
+            <i class="fas fa-plus"></i>
+        </button>
+        <input type="text" class="form-control input-field-from-field" placeholder="From field" disabled style="flex-grow: 3;">
+        <select class="form-select input-field-compare-field" style="width: 20px;flex-shrink: 1;">
+            <option selected value=">"> > </option>
+            <option value="<"> < </option>
+            <option value="=="> = </option>
+            <option value=">="> >= </option>
+            <option value="<="> =< </option>
+          </select>
+        <input type="text" class="form-control input-field-to-field" placeholder="To field" style="flex-grow: 3;">
+        <label class="form-check-label ms-2 mt-2 label-input-expr d-none">
+            <input class="form-check-input input-field-is-expr" type="checkbox"> Expr
+        </label>
+    </div>
+    <div class="input-group group-expr mt-2 d-none">
+        <div style="visibility: hidden;flex-grow: 1;"></div>
+        <div style="visibility: hidden;flex-grow: 1;"></div>
+        <select class="form-select input-field-calculation" style="width: 20px;flex-grow: 1;">
+            <option value="add" selected> Add </option>
+            <option value="subtract"> Subtract </option>
+        </select>
+        <input type="number" class="form-control input-field-number-calculation" style="flex-grow: 1;">
+        <select class="form-select input-field-unit-calculation" style="width: 20px;flex-shrink: 1;">
+            <option value="years" selected> years </option>
+            <option value="months"> months </option>
+            <option value="days"> days </option>
+            <option value="hours"> hours </option>
+            <option value="minutes"> minutes </option>
+            <option value="seconds"> seconds </option>
+        </select>
+    </div>
+    <div class="d-flex justify-content-end row-message mt-2 d-none">
+        <input type="text" class="form-control input-field-message-response" placeholder="Message error...">
+    </div>
+</div>
+
+
+<!-- ROW TEMPLATE FIELD -->
+<div data-repeater-item="" class="template-field d-none">
+    <div class="form-group row d-flex justify-content-between">
+
+        <div class="col-sm-2 col-first-template">
+            <label class="form-label">Tên Field</label>
+            <input type="text" class="form-control input-field-name" />
+
+            <div class="popper-note d-none position-absolute" role="tooltip" tabindex="-1" x-placement="top" style="left: 0;">
+                <div class="tippy-tooltip light-theme rounded-theme">
+                    <div class="tippy-arrow" style="transform: scale(2); left: 89px;">
+                    </div>
+                    <div class="tippy-content">
+                        <div class="template" data-template="">
+                            <div class="d-flex">
+                                <input type="text" class="form-control input-field-note" placeholder="Ghi chú field">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <label class="form-label">Kiểu dữ liệu</label>
+            <select class="form-select input-field-type">
+                <option value="text" selected>String</option>
+                <option value="number">Number</option>
+                <option value="boolean">Boolean</option>
+                <option value="date">Date</option>
+                <option value="object">Object</option>
+                <option value="array">Array</option>
+            </select>
+        </div>
+
+        <!-- BEGIN FIELD TYPE STRING -->
+
+        <div class="col-sm-1 col-field-type col-field-type-string" style="margin-top: 35px;">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-enum" type="checkbox">
+                    Enum
+                </label>
+            </div>
+        </div>
+
+        <div class="col-sm-4 col-field-type col-field-type-string">
+            <div class="row">
+                <div class="col-sm-6">
+                    <label class="form-label">Mặc định</label>
+                    <select class="form-select input-field-is-default">
+                        <option value="0" selected>Non-default</option>
+                        <option value="1">Default</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="form-label d-block">Giá trị mặc định</label>
+                    <input type="text" class="form-control input-field-value-default" placeholder="default">
+
+                    <input type="text" class="form-control mt-2 input-field-placeholder" placeholder="Placeholder">
+                </div>
+            </div>
+
+            <div class="row mt-3 wrapper-field-enum d-none">
+                <div class="col-sm-12 row-field-enum">
+                    <div class="input-group mb-3">
+                        <button class="btn btn-secondary btn-danger btn-remove-field-enum active" type="button">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <input type="text" class="form-control input-field-title-enum" placeholder="Tiêu đề" value="Hoạt động">
+                        <input type="text" class="form-control input-field-value-enum" placeholder="Giá trị" value="1">
+                        <input type="color" class="form-control form-control-color input-field-color-enum" value="#0b51b7" title="Choose your color">
+                    </div>
+                </div>
+                <div class="col-sm-12 row-field-enum">
+                    <div class="input-group mb-3">
+                        <button class="btn btn-secondary btn-add-field-enum" type="button">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <input type="text" class="form-control input-field-title-enum" placeholder="Tiêu đề" value="Không hoạt động">
+                        <input type="text" class="form-control input-field-value-enum" placeholder="Giá trị" value="2">
+                        <input type="color" class="form-control form-control-color input-field-color-enum" value="#d63031" title="Choose your color">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-1 col-field-type col-field-type-string">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-primary-key" type="checkbox">
+                    Primary key
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-unique" type="checkbox">
+                    Unique
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-require" type="checkbox">
+                    Require
+                </label>
+            </div>
+           
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-trim" type="checkbox">
+                    Trim
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-tiny" type="checkbox">
+                    TinyMCE
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-textarea" type="checkbox">
+                    Textarea
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-show-list" type="checkbox" isShow ='1' >
+                    Show List
+                </label>
+                <input type="text" class="form-control input-field-width" value="" style="display: none;" />
+            </div>
+        </div>
+
+        <div class="col-sm-1 col-field-type col-field-type-string">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-bold" type="checkbox">
+                    Bold
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-italic" type="checkbox">
+                    Italic
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-slug" type="checkbox">
+                    Slug
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-export" type="checkbox">
+                    Export
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-import" type="checkbox">
+                    Import
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-insert" type="checkbox">
+                    Insert
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-update" type="checkbox">
+                    Update
+                </label>
+            </div>
+        </div>
+
+        <!-- END FIELD TYPE STRING -->
+
+
+        <!-- BEGIN FIELD TYPE NUMBER -->
+
+        <div class="col-sm-1 col-field-type col-field-type-number d-none" style="margin-top: 35px;">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-enum" type="checkbox">
+                  Enum
+                </label>
+              </div>
+        </div>
+
+        <div class="col-sm-4 col-field-type col-field-type-number d-none">
+            <div class="row">
+                <div class="col-sm-6">
+                    <label class="form-label">Mặc định</label>
+                    <select class="form-select input-field-is-default">
+                        <option value="0" selected>Non-default</option>
+                        <option value="1">Default</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="form-label d-block">Giá trị mặc định</label>
+                    <input type="text" class="form-control input-field-value-default" placeholder="default">
+
+                    <input type="text" class="form-control mt-2 input-field-placeholder" placeholder="Placeholder">
+                </div>
+            </div>
+
+            <div class="row mt-3 wrapper-field-enum d-none">
+                <div class="col-sm-12 row-field-enum">
+                    <div class="input-group mb-3">
+                        <button class="btn btn-secondary btn-danger btn-remove-field-enum active" type="button">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <input type="text" class="form-control input-field-title-enum" placeholder="Tiêu đề" value="Hoạt động">
+                        <input type="text" class="form-control input-field-value-enum" placeholder="Giá trị" value="1">
+                        <input type="color" class="form-control form-control-color input-field-color-enum" value="#0b51b7" title="Choose your color">
+                    </div>
+                </div>
+                <div class="col-sm-12 row-field-enum">
+                    <div class="input-group mb-3">
+                        <button class="btn btn-secondary btn-add-field-enum" type="button">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <input type="text" class="form-control input-field-title-enum" placeholder="Tiêu đề" value="Không hoạt động">
+                        <input type="text" class="form-control input-field-value-enum" placeholder="Giá trị" value="2">
+                        <input type="color" class="form-control form-control-color input-field-color-enum" value="#d63031" title="Choose your color">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-1 col-field-type col-field-type-number d-none">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-primary-key" type="checkbox">
+                    Primary key
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-require" type="checkbox">
+                    Require
+                </label>
+            </div>
+            
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-currency" type="checkbox">
+                    Currency
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-show-status-in-list" type="checkbox">
+                        Status
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-show-order-in-list" type="checkbox">
+                        Order
+                </label>
+            </div>
+        </div>
+
+        <div class="col-sm-1 col-field-type col-field-type-number d-none">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-compare" type="checkbox">
+                    Compare
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-show-list" type="checkbox">
+                    Show List
+                </label>
+                <input type="text" class="form-control input-field-width" value="" style="display: none;" />
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-export" type="checkbox">
+                    Export
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-import" type="checkbox">
+                    Import
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-insert" type="checkbox">
+                    Insert
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-update" type="checkbox" >
+                    Update
+                </label>
+            </div>
+        </div>
+
+        <!-- END FIELD TYPE NUMBER -->
+
+
+        <!-- BEGIN FIELD TYPE BOOLEAN -->
+        <div class="col-sm-1 col-field-type col-field-type-boolean d-none"></div>
+
+        <div class="col-sm-2 col-field-type col-field-type-boolean d-none">
+            <label class="form-label">Mặc định</label>
+            <select class="form-select input-field-is-default">
+                <option value="0" selected>Non-default</option>
+                <option value="1">Default</option>
+            </select>
+        </div>
+
+        <div class="col-sm-2 col-field-type col-field-type-boolean d-none">
+            <label class="form-label d-block">Giá trị mặc định</label>
+            <div class="form-check form-switch form-switch-info">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-value-default" type="checkbox" checked>
+                    true/false
+                </label>
+            </div>
+        </div>
+        
+        <div class="col-sm-1 col-field-type col-field-type-boolean d-none">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-require" type="checkbox">
+                    Require
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-export" type="checkbox">
+                    Export
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-import" type="checkbox">
+                    Import
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-show-list" type="checkbox">
+                    Show List
+                </label>
+                <input type="text" class="form-control input-field-width" value="" style="display: none;" />
+            </div>
+        </div>
+        <div class="col-sm-1 col-field-type col-field-type-boolean d-none">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-insert" type="checkbox">
+                    Insert
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-update" type="checkbox" >
+                    Update
+                </label>
+            </div>
+        </div>
+
+
+        <!-- END FIELD TYPE BOOLEAN -->
+
+
+        <!-- BEGIN FIELD TYPE DATE -->
+
+        <div class="col-sm-1 col-field-type col-field-type-date d-none"></div>
+        <div class="col-sm-2 col-field-type col-field-type-date d-none">
+            <label class="form-label">Mặc định</label>
+            <select class="form-select input-field-is-default">
+                <option value="0" selected>Non-default</option>
+                <option value="1">Default</option>
+                <option value="2">Date now</option>
+            </select>
+
+            <select class="form-select input-field-date-type mt-2">
+                <option value="0" disabled selected>Type</option>
+                <option value="date">Date</option>
+                <option value="datetime-local">Datetime local</option>
+                <option value="time">Time</option>
+            </select>
+        </div>
+
+        <div class="col-sm-2 col-field-type col-field-type-date d-none">
+            <label class="form-label">Giá trị mặc định</label>
+            <input type="date" class="form-control input-field-value-default">
+
+            <select class="form-select input-field-format-date mt-2">
+                <option value="0" disabled selected>Format</option>
+                <option value="LT">01:01</option>
+                <option value="LTS">01:01:20</option>
+                <option value="L">17/08/2021</option>
+                <option value="DD/MM/YYYY HH:MM">17/08/2021 01:02</option>
+                <option value="LL">17 tháng 8 năm 2021</option>
+                <option value="ll">17 Thg 08 2021</option>
+                <option value="LLL">17 tháng 8 năm 2021 01:02</option>
+                <option value="LLLL">thứ ba, 17 tháng 8 năm 2021 01:02</option>
+                <option value="llll">T3, 17 Thg 08 2021 01:03</option>
+            </select>
+        </div>
+
+        <div class="col-sm-1 col-field-type col-field-type-date d-none">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-require" type="checkbox">
+                    Require
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-export" type="checkbox">
+                    Export
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-import" type="checkbox">
+                    Import
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-show-list" type="checkbox">
+                    Show List
+                </label>
+                <input type="text" class="form-control input-field-width" value="" style="display: none;" />
+            </div>
+        </div>
+
+
+        <div class="col-sm-1 col-field-type col-field-type-date d-none">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-compare" type="checkbox">
+                    Compare
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-insert" type="checkbox">
+                    Insert
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-update" type="checkbox" >
+                    Update
+                </label>
+            </div>
+        </div>
+
+        <!-- END FIELD TYPE DATE -->
+
+
+        <!-- BEGIN FIELD TYPE OBJECT -->
+
+        <div class="col-sm-1 col-field-type col-field-type-object d-none"></div>
+        <div class="col-sm-2 col-field-type col-field-type-object d-none">
+            <label class="form-label">Loại object</label>
+            <select class="form-select input-field-type-object">
+                <option value="0" selected>Embedded</option>
+                <option value="1" >Reference</option>
+            </select>
+
+            <input type="text" class="form-control mt-2 input-field-reference-show d-none" placeholder="Field hiển thị">
+
+            <div class="d-grid gap-2 mt-2 wrap-button-get-field d-none">
+                <button type="button" class="btn btn-outline-primary btn-get-field-from-coll">
+                    Chọn field tạo dữ liệu
+                </button>
+            </div>
+
+            <input type="text" class="form-control mt-2 input-field-choosed-insert-update-from d-none">
+        </div>
+
+        <div class="col-sm-2 col-field-type col-field-type-object d-none">
+            <label class="form-label">Reference</label>
+            <input type="text" class="form-control input-field-value-reference">
+
+            <select class="form-select input-field-type-image mt-2 d-none">
+                <option selected>Chọn dạng hình ảnh</option>
+                <option value="1">Hình tròn</option>
+                <option value="2">Hình vuông</option>
+                <option value="3">Thumbnail</option>
+            </select>
+
+            <input type="text" class="form-control mt-2 input-field-file-type d-none" placeholder=".png, .jpeg, .docx, .pdf">
+            <input type="text" class="form-control mt-2 input-field-follow-by d-none" placeholder="Follow field">
+        </div>
+
+        <div class="col-sm-1 col-field-type col-field-type-object d-none">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-primary-key" type="checkbox">
+                    Primary key
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-require" type="checkbox">
+                    Require
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-image" type="checkbox">
+                    Image
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-link" type="checkbox">
+                    Linking
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-show-list" type="checkbox">
+                    Show List
+                </label>
+                <input type="text" class="form-control input-field-width" value="" style="display: none;" />
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-export" type="checkbox">
+                    Export
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-import" type="checkbox">
+                    Import
+                </label>
+            </div>
+        </div>
+
+        <div class="col-sm-1 col-field-type col-field-type-object d-none">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-insert" type="checkbox">
+                    Insert
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-update" type="checkbox">
+                    Update
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-insert-update-from" type="checkbox">
+                    Dữ liệu ánh xạ
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-big-data" type="checkbox">
+                    Dữ liệu lớn
+                </label>
+            </div>
+        </div>
+
+
+        <!-- END FIELD TYPE OBJECT -->
+
+
+        <!-- BEGIN FIELD TYPE ARRAY -->
+
+        <div class="col-sm-1 col-field-type col-field-type-array d-none"></div>
+        <div class="col-sm-2 col-field-type col-field-type-array d-none">
+            <label class="form-label">Loại Array</label>
+            <select class="form-select input-field-type-array">
+                <option value="0" selected>Embedded</option>
+                <option value="1">Reference</option>
+            </select>
+
+            <input type="text" class="form-control mt-2 input-field-reference-show d-none" placeholder="Field hiển thị">
+        </div>
+
+        <div class="col-sm-2 col-field-type col-field-type-array d-none">
+            <label class="form-label">Reference</label>
+            <input type="text" class="form-control input-field-value-reference">
+
+            <select class="form-select input-field-type-upload mt-2 d-none">
+                <option selected disabled>Chọn loại upload</option>
+                <option value="1">Dropify</option>
+                <option value="2">Custom</option>
+            </select>
+
+            <input type="text" class="form-control mt-2 input-field-file-type d-none" placeholder=".png, .jpeg, .docx, .pdf">
+            <input type="text" class="form-control mt-2 input-field-table-sub d-none" placeholder="Bảng phụ">
+        </div>
+
+        <div class="col-sm-1 col-field-type col-field-type-array d-none">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-require" type="checkbox">
+                    Required
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-export" type="checkbox">
+                    Export
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-import" type="checkbox">
+                    Import
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-show-list" type="checkbox">
+                    Show List
+                </label>
+                <input type="text" class="form-control input-field-width" value="" style="display: none;" />
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-image" type="checkbox">
+                    Image
+                </label>
+            </div>
+        </div>
+
+        <div class="col-sm-1 col-field-type col-field-type-array d-none">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-insert" type="checkbox">
+                    Insert
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-update" type="checkbox">
+                    Update
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input input-field-is-big-data" type="checkbox">
+                    Dữ liệu lớn
+                </label>
+            </div>
+        </div>
+
+        <!-- END FIELD TYPE ARRAY -->
+
+        <!-- MODAL CREATE CÂU ĐIỀU KIỆN -->
+        <div class="modal fade bs-example-modal-sm modal-set-condition-from-field" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title">Tạo câu điều kiện</h6>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between row-parent mb-3">
+                            <div class="form-check mt-2">
+                                <label class="form-check-label">
+                                    <input class="form-check-input input-field-is-separate-condition" type="checkbox">
+                                    Tách điều kiện
+                                </label>
+                            </div>
+                            <input type="text" class="form-control input-message-response" placeholder="Message error..." style="width: 50%">
+                        </div>
+
+                        <div class="wrapper-condition-field row"></div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-soft-primary waves-effect waves-light me-1" data-bs-dismiss="modal">
+                                Đóng
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-1">
+            <span data-repeater-delete="" class="btn btn-outline-danger">
+                <span class="far fa-trash-alt me-1"></span> Delete
+            </span>
+        </div>
+    </div>
+</div>

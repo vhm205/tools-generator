@@ -1,0 +1,30 @@
+<%- include('layout/header') %>
+<%- include(render.inc) %>
+<%- include('layout/footer') %>
+
+<% if (render.code === 'MANAGE_ROLE') { %>
+	<%- include('../packages/auth/views/role/scripts/manage_role-script.ejs') %>
+<% } %>
+
+<% if (render.code === 'MANAGE_API') { %>
+	<%- include('../packages/auth/views/api/scripts/manage_api-script.ejs') %>
+<% } %>
+
+<% if (render.code === 'MANAGE_USER') { %>
+	<%- include('../packages/auth/views/user/scripts/manage_user-script.ejs') %>
+<% } %>
+
+<% if (render.code === 'TRIGGER_EVENT') { %>
+	<%- include('../packages/trigger-event/views/scripts/trigger_event-script.ejs') %>
+<% } %>
+
+<% if (render.code === 'CHART') { %>
+	<%- include('../packages/chart/views/scripts/manage_chart-script.ejs') %>
+<% } %>
+
+<%- include('./inc/supervisor/scripts/tools-script.ejs') %>
+<%- include('./inc/supervisor/scripts/main-script.ejs') %>
+
+<% if (render.code === '/admin/list-admin') { %>
+	<%- include('../packages/user/views/scripts/manage_user-script.ejs') %>
+<% } %>

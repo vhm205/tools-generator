@@ -1,0 +1,119 @@
+<style>
+	.modal-update-user .modal-dialog{
+		width: 300px;
+	}
+	/* .dataTables_filter{
+		display: none;
+	} */
+</style>
+
+<div class="content-page">
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12">
+                   <div class="page-title-box">
+                      <h4 class="page-title">Role Base Access Control</h4>
+                      <ol class="breadcrumb">
+                         <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
+                         <li class="breadcrumb-item active">Role</li>
+                      </ol>
+                   </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card m-b-20 px-5">
+						<div class="card-header">
+							<h2>Roles</h2>
+							<p>
+								Create and manage Roles for your applications. Roles contain collections of Permissions and can be assigned to Users.
+							</p>
+						</div>
+
+                        <div class="card-body">
+
+							<div class="d-flex justify-content-end">
+								<a href="javascript:void(0)" class="btn btn-primary mb-3 waves-effect waves-light btn-show-modal-create-role">
+									<i class="fas fa-plus-circle me-1"></i>
+									Create role
+								</a>
+							</div>
+
+							<table class="table table-data table-striped">
+								<thead>
+									<tr>
+										<th>STT</th>
+										<th>Role</th>
+										<th>Description</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									<% listRoles && listRoles.forEach((role, index) => { %>
+										<tr>
+											<td>
+												<%= index + 1 %>
+											</td>
+											<td>
+												<a href="/admin/detail-role/<%= role._id %>">
+													<i> <%= role.name %> </i>
+												</a>
+											</td>
+											<td>
+												<%= role.description %>
+											</td>
+											<td>
+												<div class="dropdown d-inline-block">
+													<a class="dropdown-toggle arrow-none" id="dLabel-<%= index %>" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+														<i class="las la-ellipsis-v font-20 text-muted"></i>
+													</a>
+													<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dLabel-<%= index %>">
+														<a class="dropdown-item" href="/admin/detail-role/<%= role._id %>">
+															<!-- <i class="fas fa-info-circle me-1"></i> -->
+															Detail
+														</a>
+														<a class="dropdown-item text-danger btn-remove-role" href="javascript:void(0)" _roleID="<%= role._id %>">
+															<!-- <i class="fas fa-trash me-1"></i> -->
+															Delete
+														</a>
+													</div>
+												</div>
+											</td>
+										</tr>
+									<% }) %>
+								</tbody>
+							</table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+			<!-- END ROW -->
+        </div>
+    </div>
+</div>
+
+<!-- POPUP CREATE ROLE -->
+<div class="modal fade bs-example-modal-sm modal-create-role" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+			<div class="modal-header">
+				<h6 class="modal-title">New Role</h6>
+			</div>
+            <div class="card-body">
+				<div class="form-group"><label>Name <span class="text-danger">*</span> </label> 
+                    <input type="text" class="form-control" placeholder="Tên Role" id="inputRoleName">
+                </div>
+				<div class="form-group"><label>Description <span class="text-danger">*</span></label> 
+                    <input type="text" class="form-control" placeholder="Mô tả" id="inputRoleDescription">
+                </div>
+
+				<div class="d-flex justify-content-end">
+					<button type="button" class="btn btn-success waves-effect waves-light mr-1" id="btnConfirmCreateRole">Create</button>
+				</div>
+            </div>
+        </div>
+    </div>
+</div>

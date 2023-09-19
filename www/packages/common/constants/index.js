@@ -1,0 +1,3 @@
+module.exports.JOB_TYPES = {
+    COMPRESS_IMAGE: 'COMPRESS_IMAGE'
+}

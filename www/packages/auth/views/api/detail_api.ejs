@@ -1,0 +1,143 @@
+<style>
+	.modal-update-user .modal-dialog{
+		width: 300px;
+	}
+	/* .dataTables_filter{
+		display: none;
+	} */
+</style>
+
+<div class="content-page">
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12">
+                   <div class="page-title-box">
+                      <h4 class="page-title">Role Base Access Control</h4>
+                      <ol class="breadcrumb">
+                         <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
+                         <li class="breadcrumb-item active">API</li>
+                      </ol>
+                   </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card m-b-20 px-5">
+						<div class="card-header">
+							<a href="/admin/apis" class="card-title">
+								<i class="far fa-arrow-alt-circle-left"></i>
+								Back to APIs
+							</a>
+							<h2> <%= infoApi.name %> </h2>
+							<p>
+								ENDPOINT: <%= infoApi.endpoint %>
+							</p>
+						</div>
+
+                        <div class="card-body">
+
+							<!-- Nav tabs -->
+							<ul class="nav nav-tabs" role="tablist">
+								<li class="nav-item">
+									<a class="nav-link active" data-bs-toggle="tab" href="#setting-pane" role="tab" aria-selected="true">Settings</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" data-bs-toggle="tab" href="#permission-pane" role="tab" aria-selected="false">Permissions</a>
+								</li>
+							</ul>
+
+							<!-- Tab panes -->
+							<div class="tab-content">
+								<div class="tab-pane p-3 active" id="setting-pane" role="tabpanel">
+									
+									<div class="col-12 col-sm-6">
+										<div class="mb-3">
+                                            <label class="form-label" for="inputApiName">
+												Name <span class="text-danger">*</span>
+											</label>
+                                            <input type="email" class="form-control" id="inputApiName" aria-describedby="emailHelp" placeholder="Tên" value="<%= infoApi.name %>">
+                                            <!-- <small class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label" for="inputApiEndpoint">
+												Endpoint
+											</label>
+                                            <input type="text" class="form-control" id="inputApiEndpoint" placeholder="Endpoint" value="<%= infoApi.endpoint %>" disabled>
+                                        </div>
+										<button class="btn btn-primary px-4" id="btnSaveApi" _apiID="<%= infoApi._id %>">Save</button>
+									</div>
+
+								</div>
+								<div class="tab-pane p-3" id="permission-pane" role="tabpanel">
+									
+									<div class="form-group row d-flex align-items-end">
+										<div class="col-12 col-sm-4">
+											<label class="form-label">Scope <span class="text-danger">*</span></label>
+											<input type="text" class="form-control" placeholder="read:categories" id="inputScopeName">
+										</div>
+	
+										<div class="col-12 col-sm-4">
+											<label class="form-label">Description <span class="text-danger">*</span></label>
+											<input type="text" class="form-control" placeholder="Read categories" id="inputScopeDescription">
+										</div>
+
+										<div class="col-12 col-sm-4">
+											<button class="btn btn-outline-primary px-4" id="btnAddScope" _apiID="<%= infoApi._id %>">
+												<i class="fas fa-plus-circle me-1"></i> Add
+											</button>
+										</div>
+									</div>
+
+									<table class="table table-striped mt-5">
+										<thead>
+											<tr>
+												<th>STT</th>
+												<th>Scope</th>
+												<th>Description</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											<% listApiScope && listApiScope.forEach((scope, index) => { %>
+												<tr>
+													<td>
+														<%= index + 1 %>
+													</td>
+													<td>
+														<i> <%= scope.name %> </i>
+													</td>
+													<td>
+														<%= scope.description %>
+													</td>
+													<td>
+														<div class="dropdown d-inline-block">
+															<a class="dropdown-toggle arrow-none" id="dLabel-<%= index %>" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+																<i class="las la-ellipsis-v font-20 text-muted"></i>
+															</a>
+															<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dLabel-<%= index %>">
+																<a class="dropdown-item text-danger btn-remove-api-scope" href="javascript:void(0)" _scopeAPI="<%= scope._id %>">
+																	<!-- <i class="fas fa-trash me-1"></i> -->
+																	Delete
+																</a>
+															</div>
+														</div>
+													</td>
+												</tr>
+											<% }) %>
+										</tbody>
+									</table>
+
+								</div>
+							</div>   
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+			<!-- END ROW -->
+        </div>
+    </div>
+</div>
